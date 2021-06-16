@@ -18,7 +18,7 @@ namespace PSCF_Ethernet
 
         private void ReceiveTraffic_Click(object sender, RoutedEventArgs e)
         {
-            OfflinePacketDevice selectedDevice = new OfflinePacketDevice(@"D:\studia\Gildia Magów Ognia\PSC-F\PSC-F\inputFile2.pcap");
+            OfflinePacketDevice selectedDevice = new OfflinePacketDevice(@"testPOLSL.pcap");
 
             // Open the capture file
             using (PacketCommunicator communicator =
@@ -39,7 +39,10 @@ namespace PSCF_Ethernet
             IpV4Datagram ip = packet.Ethernet.IpV4;
             UdpDatagram udp = ip.Udp;
 
-            trafficBox.Items.Add(ip.Source + ":" + udp.SourcePort + " -> " + ip.Destination + ":" + udp.DestinationPort + "\n");
+            if (ip != null && udp != null)
+                trafficBox.Items.Add(ip.Source + ":" + udp.SourcePort + " -> " + ip.Destination + ":" + udp.DestinationPort + "\n");
+            else
+                trafficBox.Items.Add("\n");
         }
 
     }
