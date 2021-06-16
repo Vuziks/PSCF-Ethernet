@@ -11,6 +11,9 @@ namespace PSCF_Ethernet
     /// </summary>
     public partial class MainWindow : Window
     {
+        public int TCPamount = 0;
+        public int UDPamount = 0;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -18,7 +21,7 @@ namespace PSCF_Ethernet
 
         private void ReceiveTraffic_Click(object sender, RoutedEventArgs e)
         {
-            OfflinePacketDevice selectedDevice = new OfflinePacketDevice(@"testPOLSL.pcap");
+            OfflinePacketDevice selectedDevice = new OfflinePacketDevice(@"inputFile2.pcap");
 
             // Open the capture file
             using (PacketCommunicator communicator =
@@ -30,11 +33,17 @@ namespace PSCF_Ethernet
                 // Read and dispatch packets until EOF is reached
                 communicator.ReceivePackets(0, DispatcherHandler);
             }
+
+            tcpBox.Items.Add(TCPamount);
+            udpBox.Items.Add(UDPamount);
         }
 
         private void DispatcherHandler(Packet packet)
         {
             trafficBox.Items.Add(packet.Timestamp.ToString("yyyy-MM-dd hh:mm:ss.fff") + " length:" + packet.Length);
+
+            CountTCP(packet);
+            CountUDP(packet);
 
             IpV4Datagram ip = packet.Ethernet.IpV4;
             UdpDatagram udp = ip.Udp;
@@ -43,6 +52,22 @@ namespace PSCF_Ethernet
                 trafficBox.Items.Add(ip.Source + ":" + udp.SourcePort + " -> " + ip.Destination + ":" + udp.DestinationPort + "\n");
             else
                 trafficBox.Items.Add("\n");
+        }
+
+        private void CountTCP(Packet packet)
+        {
+            if(packet.IpV4.Tcp != null)
+            {
+                TCPamount++;
+            }
+        }
+
+        private void CountUDP(Packet packet)
+        {
+            if (packet.IpV4.Udp != null)
+            {
+                UDPamount++;
+            }
         }
 
     }
