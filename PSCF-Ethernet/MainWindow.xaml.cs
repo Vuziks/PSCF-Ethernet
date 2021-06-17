@@ -149,7 +149,7 @@ namespace PSCF_Ethernet
 
         private void CountTCP(Packet packet)
         {
-            if(packet.IpV4.Tcp != null)
+            if(packet.Ethernet.IpV4.Protocol.ToString() == "Tcp")
             {
                 TCPamount++;
             }
@@ -157,7 +157,7 @@ namespace PSCF_Ethernet
 
         private void CountUDP(Packet packet)
         {
-            if (packet.IpV4.Udp != null)
+            if (packet.Ethernet.IpV4.Protocol.ToString() == "Udp")
             {
                 UDPamount++;
             }
