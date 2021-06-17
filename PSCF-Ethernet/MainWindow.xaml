@@ -16,5 +16,6 @@
         <ListBox HorizontalAlignment="Left" Height="24" Margin="10,251,0,0" VerticalAlignment="Top" Width="106" x:Name="tcpBox"/>
         <Label Content="UDP Packet Count" HorizontalAlignment="Left" Margin="10,280,0,0" VerticalAlignment="Top"/>
         <ListBox HorizontalAlignment="Left" Height="24" Margin="10,306,0,0" VerticalAlignment="Top" Width="106" x:Name="udpBox"/>
+        <CheckBox Content="CheckBox" HorizontalAlignment="Left" Margin="54,-13,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>

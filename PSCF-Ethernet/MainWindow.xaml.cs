@@ -85,6 +85,11 @@ namespace PSCF_Ethernet
             // Display OpenFileDialog by calling ShowDialog method 
             Nullable<bool> result = dlg.ShowDialog();
 
+            previousPacket = null;
+            packetsTotal = 0;
+            totalDelay = 0.0;
+            TCPamount = 0;
+            UDPamount = 0;
             fileName = "";
             trafficBox.Items.Clear();
             tcpBox.Items.Clear();
