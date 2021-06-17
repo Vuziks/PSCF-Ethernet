@@ -80,6 +80,8 @@ namespace PSCF_Ethernet
 
             fileName = "";
             trafficBox.Items.Clear();
+            tcpBox.Items.Clear();
+            udpBox.Items.Clear();
             pathBox.Items.Clear();
 
             // Get the selected file name and display in a TextBox 
