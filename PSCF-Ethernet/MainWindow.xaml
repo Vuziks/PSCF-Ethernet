@@ -9,7 +9,12 @@
     <Grid>
         <ListBox HorizontalAlignment="Left" Height="184" Margin="10,36,0,0" VerticalAlignment="Top" Width="441" x:Name="trafficBox"/>
         <Button Content="Receive traffic" HorizontalAlignment="Left" Margin="456,10,0,0" VerticalAlignment="Top" Width="156" Click="ReceiveTraffic_Click" Height="48" FontSize="22"/>
+        <Button Content="Open file" HorizontalAlignment="Left" Margin="626,10,0,0" VerticalAlignment="Top" Width="156" Click="btnOpenFile_Click" Height="48" FontSize="22"/>
+        <ListBox HorizontalAlignment="Left" Height="23" Margin="456,63,0,0" VerticalAlignment="Top" Width="326" x:Name="pathBox"/>
         <Label Content="Traffic Monitor" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
-
+        <Label Content="TCP Packet Count" HorizontalAlignment="Left" Margin="10,225,0,0" VerticalAlignment="Top"/>
+        <ListBox HorizontalAlignment="Left" Height="24" Margin="10,251,0,0" VerticalAlignment="Top" Width="106" x:Name="tcpBox"/>
+        <Label Content="UDP Packet Count" HorizontalAlignment="Left" Margin="10,280,0,0" VerticalAlignment="Top"/>
+        <ListBox HorizontalAlignment="Left" Height="24" Margin="10,306,0,0" VerticalAlignment="Top" Width="106" x:Name="udpBox"/>
     </Grid>
 </Window>
