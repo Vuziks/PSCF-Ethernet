@@ -7,15 +7,30 @@
         mc:Ignorable="d"
         Title="POLSLshark" Height="450" Width="800">
     <Grid>
-        <ListBox HorizontalAlignment="Left" Height="184" Margin="10,36,0,0" VerticalAlignment="Top" Width="441" x:Name="trafficBox"/>
-        <Button Content="Receive traffic" HorizontalAlignment="Left" Margin="456,10,0,0" VerticalAlignment="Top" Width="156" Click="ReceiveTraffic_Click" Height="48" FontSize="22"/>
-        <Button Content="Open file" HorizontalAlignment="Left" Margin="626,10,0,0" VerticalAlignment="Top" Width="156" Click="btnOpenFile_Click" Height="48" FontSize="22"/>
-        <ListBox HorizontalAlignment="Left" Height="23" Margin="456,63,0,0" VerticalAlignment="Top" Width="326" x:Name="pathBox"/>
+        <Button Content="Open file" HorizontalAlignment="Left" Margin="10,333,0,0" VerticalAlignment="Top" Width="156" Click="OpenFile_Click" Height="48" FontSize="22"/>
+        <Button Content="Receive traffic" HorizontalAlignment="Left" Margin="180,333,0,0" VerticalAlignment="Top" Width="156" Click="ReceiveTraffic_Click" Height="48" FontSize="22"/>
+
+        <DataGrid x:Name="trafficData" AlternatingRowBackground="Silver" CanUserAddRows="False" AutoGenerateColumns="False" Margin="10,31,162,137">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="No." Binding="{Binding Path=Id}" />
+                <DataGridTextColumn Header="Source_IP" Binding="{Binding Path=SourceIP}" />
+                <DataGridTextColumn Header="Source_Port" Binding="{Binding Path=SourcePort}" />
+                <DataGridTextColumn Header="Destination_IP" Binding="{Binding Path=DestinationIP}" />
+                <DataGridTextColumn Header="Destination_Port" Binding="{Binding Path=DestinationPort}" />
+                <DataGridTextColumn Header="Delay [s]" Binding="{Binding Path=DelayInSeconds}" />
+                <DataGridTextColumn Header="Bytes per second" Binding="{Binding Path=BytesPerSecond}" />
+                <DataGridTextColumn Header="Jitter" Binding="{Binding Path=Jitter}" />
+            </DataGrid.Columns>
+        </DataGrid>
+
         <Label Content="Traffic Monitor" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
-        <Label Content="TCP Packet Count" HorizontalAlignment="Left" Margin="10,225,0,0" VerticalAlignment="Top"/>
-        <ListBox HorizontalAlignment="Left" Height="24" Margin="10,251,0,0" VerticalAlignment="Top" Width="106" x:Name="tcpBox"/>
-        <Label Content="UDP Packet Count" HorizontalAlignment="Left" Margin="10,280,0,0" VerticalAlignment="Top"/>
-        <ListBox HorizontalAlignment="Left" Height="24" Margin="10,306,0,0" VerticalAlignment="Top" Width="106" x:Name="udpBox"/>
-        <CheckBox Content="CheckBox" HorizontalAlignment="Left" Margin="54,-13,0,0" VerticalAlignment="Top"/>
+        <Label Content="Number of Other packets:" HorizontalAlignment="Left" Margin="635,10,0,0" VerticalAlignment="Top"/>
+        <Label Content="Number of TCP packets:" HorizontalAlignment="Left" Margin="635,65,0,0" VerticalAlignment="Top"/>
+        <Label Content="Number of UDP packets:" HorizontalAlignment="Left" Margin="635,120,0,0" VerticalAlignment="Top"/>
+
+        <ListBox HorizontalAlignment="Left" Height="24" Margin="645,36,0,0" VerticalAlignment="Top" Width="106" x:Name="otherBox"/>
+        <ListBox HorizontalAlignment="Left" Height="23" Margin="10,386,0,0" VerticalAlignment="Top" Width="326" x:Name="pathBox"/>
+        <ListBox HorizontalAlignment="Left" Height="24" Margin="645,91,0,0" VerticalAlignment="Top" Width="106" x:Name="tcpBox"/>
+        <ListBox HorizontalAlignment="Left" Height="24" Margin="645,151,0,0" VerticalAlignment="Top" Width="106" x:Name="udpBox"/>
     </Grid>
 </Window>

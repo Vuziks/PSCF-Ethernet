@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Windows;
 using LiveCharts;
 using LiveCharts.Wpf;
+using System.Collections.Generic;
 
 namespace PSCF_Ethernet
 {
@@ -15,25 +16,33 @@ namespace PSCF_Ethernet
     /// </summary>
     public partial class MainWindow : Window
     {
-        public int TCPamount = 0;
-        public int UDPamount = 0;
+        // Variables
+        //#####################################################
+        List<DataGrid> dataGrid = new List<DataGrid>();
+
+        Packet previousPacket = null;
+
+        public double totalDelay = 0.0;
+
+        public int amountOther = 0;
+        public int amountTCP = 0;
+        public int amountUDP = 0;
+        public int index = 0;
+
         public string fileName = "";
+
+        public ulong packetsTotal = 0;
+        //#####################################################
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        Packet previousPacket = null;
-        ulong packetsTotal = 0;
-        double totalDelay = 0.0;
-
         private void ReceiveTraffic_Click(object sender, RoutedEventArgs e)
         {
             if(fileName != "")
             {
-                trafficBox.Items.Clear();
-
                 OfflinePacketDevice selectedDevice = new OfflinePacketDevice(fileName);
 
                 // Open the capture file
@@ -47,72 +56,66 @@ namespace PSCF_Ethernet
                     communicator.ReceivePackets(0, DispatcherHandler);
                 }
 
-                tcpBox.Items.Add(TCPamount);
-                udpBox.Items.Add(UDPamount);
+                trafficData.ItemsSource = dataGrid;
+
+                otherBox.Items.Add(amountOther);
+                tcpBox.Items.Add(amountTCP);
+                udpBox.Items.Add(amountUDP);
             }
             else
             {
-                trafficBox.Items.Add("First choose file to analyze!!!");
+                pathBox.Items.Add("First choose file to analyze!!!");
             }
-
-            //OfflinePacketDevice selectedDevice = new OfflinePacketDevice(@"inputFile2.pcap");
-            /*
-            // Open the capture file
-            using (PacketCommunicator communicator =
-                selectedDevice.Open(65536,                                  // portion of the packet to capture
-                                                                            // 65536 guarantees that the whole packet will be captured on all the link layers
-                                    PacketDeviceOpenAttributes.Promiscuous, // promiscuous mode
-                                    1000))                                  // read timeout
-            {
-                // Read and dispatch packets until EOF is reached
-                communicator.ReceivePackets(0, DispatcherHandler);
-            }
-
-            tcpBox.Items.Add(TCPamount);
-            udpBox.Items.Add(UDPamount);
-            */
         }
 
-        private void btnOpenFile_Click(object sender, RoutedEventArgs e)
+        private void clearAll()
         {
-            // Create OpenFileDialog 
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-
-            // Set filter for file extension and default file extension 
-            dlg.DefaultExt = ".pcap";
-            dlg.Filter = "Wireshark capture file (*.pcap)|*.pcap";
-
-            // Display OpenFileDialog by calling ShowDialog method 
-            Nullable<bool> result = dlg.ShowDialog();
+            dataGrid.Clear();
+            trafficData.ItemsSource = null;
 
             previousPacket = null;
-            packetsTotal = 0;
+
             totalDelay = 0.0;
-            TCPamount = 0;
-            UDPamount = 0;
+
+            amountOther = 0;
+            amountTCP = 0;
+            amountUDP = 0;
+            index = 0;
+
             fileName = "";
-            trafficBox.Items.Clear();
+
+            packetsTotal = 0;
+
+
+            otherBox.Items.Clear();
+            pathBox.Items.Clear();
             tcpBox.Items.Clear();
             udpBox.Items.Clear();
-            pathBox.Items.Clear();
+        }
 
-            // Get the selected file name and display in a TextBox 
-            if (result == true)
+        private void countPackets(Packet packet)
+        {
+            if (packet.Ethernet.IpV4.Protocol.ToString() == "Tcp")
             {
-                // Get file path
-                fileName = dlg.FileName;
+                amountTCP++;
             }
-
-            pathBox.Items.Add(fileName);
+            else if (packet.Ethernet.IpV4.Protocol.ToString() == "Udp")
+            {
+                amountUDP++;
+            }
+            else
+            {
+                amountOther++;
+            }
         }
 
         private void DispatcherHandler(Packet packet)
         {
-            trafficBox.Items.Add(packet.Timestamp.ToString("yyyy-MM-dd hh:mm:ss.fff") + " length:" + packet.Length);
-            if (previousPacket == null) previousPacket = packet;
-            packetsTotal++;
-            CountTCP(packet);
-            CountUDP(packet);
+            //trafficBox.Items.Add(packet.Timestamp.ToString("yyyy-MM-dd hh:mm:ss.fff") + " length:" + packet.Length);
+            if (previousPacket == null) 
+                previousPacket = packet;
+
+            countPackets(packet);
 
             IpV4Datagram ip = packet.Ethernet.IpV4;
             UdpDatagram udp = ip.Udp;
@@ -122,17 +125,11 @@ namespace PSCF_Ethernet
             double bytesPerSecond = calculateBytesPerSecond(packet, delayInSeconds);
             double jitter = calculateJitter();
 
+            index++;
 
-            if (ip != null && udp != null)
-                trafficBox.Items.Add(ip.Source + ":" + udp.SourcePort + " -> " + ip.Destination + ":" + udp.DestinationPort + "\n" +
-                    "delay: " + delayInSeconds + "\n" + "bytes per second: " + (int) bytesPerSecond  +
-                    "\n" + "jitter: " + (int) jitter);
-            else
-                trafficBox.Items.Add("\n");
-
-            previousPacket = packet;
+            dataGrid.Add(new DataGrid() { Id = index, SourceIP = ip.Source, SourcePort = udp.SourcePort, DestinationIP = ip.Destination, DestinationPort = udp.DestinationPort, DelayInSeconds = delayInSeconds, BytesPerSecond = (int)bytesPerSecond, Jitter = (int)jitter });
         }
-
+        
         private double calculateJitter()
         {
             return totalDelay * 1000 / packetsTotal;
@@ -152,21 +149,48 @@ namespace PSCF_Ethernet
             return 0;
         }
 
-        private void CountTCP(Packet packet)
+        private void OpenFile_Click(object sender, RoutedEventArgs e)
         {
-            if(packet.Ethernet.IpV4.Protocol.ToString() == "Tcp")
+            // Clear all variables and contents from MainWindow
+            clearAll();
+
+            // Create OpenFileDialog 
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+
+            // Set filter for file extension and default file extension 
+            dlg.DefaultExt = ".pcap";
+            dlg.Filter = "Wireshark capture file (*.pcap)|*.pcap";
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            Nullable<bool> result = dlg.ShowDialog();
+
+            // Get the selected file name and display in a TextBox 
+            if (result == true)
             {
-                TCPamount++;
+                // Get file path
+                fileName = dlg.FileName;
+            }
+
+            if(fileName != "")
+            {
+                pathBox.Items.Add(fileName);
+            }
+            else
+            {
+                pathBox.Items.Add("First choose file to analyze!!!");
             }
         }
+    }
 
-        private void CountUDP(Packet packet)
-        {
-            if (packet.Ethernet.IpV4.Protocol.ToString() == "Udp")
-            {
-                UDPamount++;
-            }
-        }
-
+    public class DataGrid
+    {
+        public int Id { get; set; }
+        public IpV4Address SourceIP { get; set; }
+        public ushort SourcePort { get; set; }
+        public IpV4Address DestinationIP { get; set; }
+        public ushort DestinationPort { get; set; }
+        public double DelayInSeconds { get; set; }
+        public int BytesPerSecond { get; set; }
+        public int Jitter { get; set; }
     }
 }
