@@ -19,6 +19,7 @@ namespace PSCF_Ethernet
         // Variables
         //#####################################################
         List<DataGrid> dataGrid = new List<DataGrid>();
+        List<Packet> packetsForJitter = new List<Packet>();
 
         Packet previousPacket = null;
 
@@ -68,6 +69,42 @@ namespace PSCF_Ethernet
             }
         }
 
+        private void Calculate_Jitter(Packet packet)
+        {
+            if (packetsForJitter.Count > 0)
+            {
+              
+            }
+        }
+
+        private void checkPacketForJitter(Packet packet)
+        {
+            if (inputFromBox.Text.Length > 0 && inputToBox.Text.Length > 0 && controlSumBox.Text.Length > 0)
+            {
+                try
+                {
+                    int startBit = Int32.Parse(inputFromBox.Text);
+                    int endBit = Int32.Parse(inputToBox.Text);
+                    int controlSum = Int32.Parse(controlSumBox.Text);
+                    int currentSum = 0;
+                    for (int i = startBit; i <= endBit; i++)
+                    {
+                        currentSum += packet.Buffer[i];
+                    }
+                    if (currentSum.Equals(controlSum))
+                    {
+                        packetsForJitter.Add(packet);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message + "\n error parsing to value");
+                }
+
+            }
+
+        }
+
         private void clearAll()
         {
             dataGrid.Clear();
@@ -95,13 +132,16 @@ namespace PSCF_Ethernet
 
         private void countPackets(Packet packet)
         {
-            if (packet.Ethernet.IpV4.Protocol.ToString() == "Tcp")
+            if (packet.Ethernet.EtherType.Equals(PcapDotNet.Packets.Ethernet.EthernetType.IpV4))
             {
-                amountTCP++;
-            }
-            else if (packet.Ethernet.IpV4.Protocol.ToString() == "Udp")
-            {
-                amountUDP++;
+                if (packet.Ethernet.IpV4.Protocol.ToString() == "Tcp")
+                {
+                    amountTCP++;
+                }
+                else if (packet.Ethernet.IpV4.Protocol.ToString() == "Udp")
+                {
+                    amountUDP++;
+                }
             }
             else
             {
@@ -123,11 +163,19 @@ namespace PSCF_Ethernet
             double delayInSeconds = calculateDelayInSeconds(previousPacket, packet);
             totalDelay += delayInSeconds;
             double bytesPerSecond = calculateBytesPerSecond(packet, delayInSeconds);
-            double jitter = calculateJitter();
+            checkPacketForJitter(packet);
 
             index++;
 
-            dataGrid.Add(new DataGrid() { Id = index, SourceIP = ip.Source, SourcePort = udp.SourcePort, DestinationIP = ip.Destination, DestinationPort = udp.DestinationPort, DelayInSeconds = delayInSeconds, BytesPerSecond = (int)bytesPerSecond, Jitter = (int)jitter });
+            dataGrid.Add(new DataGrid() {
+                Id = index,
+                SourceIP = ip.Source,
+                SourcePort = udp.SourcePort,
+                DestinationIP = ip.Destination,
+                DestinationPort = udp.DestinationPort,
+                DelayInSeconds = delayInSeconds,
+                BytesPerSecond = (int)bytesPerSecond
+            });
         }
         
         private double calculateJitter()
