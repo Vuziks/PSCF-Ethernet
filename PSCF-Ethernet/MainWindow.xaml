@@ -5,12 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PSCF_Ethernet"
         mc:Ignorable="d"
-        Title="POLSLshark" Height="450" Width="800">
+        Title="POLSLshark" Height="550" Width="800">
     <Grid>
         <Button Content="Open file" HorizontalAlignment="Left" Margin="10,333,0,0" VerticalAlignment="Top" Width="156" Click="OpenFile_Click" Height="48" FontSize="22"/>
         <Button Content="Receive traffic" HorizontalAlignment="Left" Margin="180,333,0,0" VerticalAlignment="Top" Width="156" Click="ReceiveTraffic_Click" Height="48" FontSize="22"/>
-        
-        <DataGrid x:Name="trafficData" AlternatingRowBackground="Silver" CanUserAddRows="False" AutoGenerateColumns="False" Margin="10,31,162,137">
+        <Button Content="Calculate Jitter" HorizontalAlignment="Left" Margin="410,465,0,0" VerticalAlignment="Top" Click="Calculate_Jitter" Width="100"/>
+
+        <DataGrid x:Name="trafficData" AlternatingRowBackground="Silver" CanUserAddRows="False" AutoGenerateColumns="False" Margin="10,31,162,237">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="No." Binding="{Binding Path=Id}" />
                 <DataGridTextColumn Header="Source_IP" Binding="{Binding Path=SourceIP}" />
@@ -30,6 +31,9 @@
         <Label Content="Start check control sum from bit (start from 0)" HorizontalAlignment="Left" Margin="341,324,0,0" VerticalAlignment="Top"/>
         <Label Content="End on bit" HorizontalAlignment="Left" Margin="635,324,0,0" VerticalAlignment="Top"/>
         <Label Content="Check control sum on packets to calculate Jitter" HorizontalAlignment="Left" Margin="436,298,0,0" VerticalAlignment="Top"/>
+        <Label Content="Control sum" HorizontalAlignment="Left" Margin="420,386,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.921,0.731"/>
+        <Label Content="Margin of error (in ms)" HorizontalAlignment="Left" Margin="600,383,0,0" VerticalAlignment="Top"/>
+
 
         <ListBox HorizontalAlignment="Left" Height="24" Margin="645,36,0,0" VerticalAlignment="Top" Width="106" x:Name="otherBox"/>
         <ListBox HorizontalAlignment="Left" Height="23" Margin="10,386,0,0" VerticalAlignment="Top" Width="326" x:Name="pathBox"/>
@@ -38,6 +42,8 @@
         
         <TextBox HorizontalAlignment="Left" Height="23" Margin="400,350,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="inputFromBox"/>
         <TextBox HorizontalAlignment="Left" Height="23" Margin="605,350,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="inputToBox"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="512,386,0,0" TextWrapping="Wrap" Text="Control sum" VerticalAlignment="Top" Width="120" x:Name="controlSumBox"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="400,415,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="controlSumBox"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="605,415,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="epsilonBox"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="605,462,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="jitterBox"/>
     </Grid>
 </Window>

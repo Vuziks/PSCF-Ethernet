@@ -69,12 +69,69 @@ namespace PSCF_Ethernet
             }
         }
 
-        private void Calculate_Jitter(Packet packet)
+        private void Calculate_Jitter(object sender, RoutedEventArgs e)
         {
-            if (packetsForJitter.Count > 0)
+            if (packetsForJitter.Count > 1 && epsilonBox.Text.Length > 0) //jesli sa wypelnione te pola
             {
-              
+                var possibleIntervals = new Dictionary<double, int>(); //inicjalizacja zmiennych
+                double marginOfError = Double.Parse(epsilonBox.Text);
+                for (int i = 1; i < packetsForJitter.Count; i++)        //dla wszystkich pakietow dodanych do liczenia jittera
+                {
+                    double currentInterval = (packetsForJitter[i].Timestamp - packetsForJitter[i - 1].Timestamp).TotalMilliseconds; //policz interwał mieczy pakietami
+                    if (possibleIntervals.Count < 1)        //jesli pierwszy interwał
+                    {
+                        possibleIntervals.Add(currentInterval, 1);
+                    }
+                    else
+                    {
+                        foreach (KeyValuePair<double, int> interval in possibleIntervals)       //sprobuj znalezc istniejacy interwał
+                        {
+                            if (Math.Abs(interval.Key - currentInterval) < marginOfError)       //jesli jest juz taki interwał zikrementuj liczbe wystapien
+                            {
+                                KeyValuePair<double, int> intervalToIncrement = interval;
+                                possibleIntervals.Remove(interval.Key);
+                                possibleIntervals.Add(interval.Key, interval.Value + 1);
+                            }
+                            else                                                                //jesli nie, dodaj taki interwał
+                            {
+                                possibleIntervals.Add(currentInterval, 1);
+                            }
+                        }
+                    }
+                }
+                //wybieranie najczesciej wystepujacego interwalu
+                double mostFrequentInterval = 0.0;
+                int mostOccurences = 0;
+                foreach (KeyValuePair<double, int> interval in possibleIntervals)
+                {
+                    if(mostOccurences < interval.Value)
+                    {
+                        mostOccurences = interval.Value;
+                        mostFrequentInterval = interval.Key;
+                    }
+                }
+                jitterBox.Text = ((int) calculateJitterOnGivenInterval(mostFrequentInterval)).ToString();   
             }
+        }
+
+        private double calculateJitterOnGivenInterval(double interval)
+        {
+            Packet previousPacket = null;
+            double unstabilityTotal = 0.0;
+            foreach (Packet packet in packetsForJitter)
+            {
+                if(previousPacket == null)
+                {
+                    previousPacket = packet;
+                }
+                else
+                {
+                    double delay = (previousPacket.Timestamp - packet.Timestamp).TotalMilliseconds;
+                    unstabilityTotal += Math.Abs(interval - delay);
+                }
+            }
+            double jitter = packetsForJitter.Count / unstabilityTotal;
+            return jitter;
         }
 
         private void checkPacketForJitter(Packet packet)
@@ -177,12 +234,7 @@ namespace PSCF_Ethernet
                 BytesPerSecond = (int)bytesPerSecond
             });
         }
-        
-        private double calculateJitter()
-        {
-            return totalDelay * 1000 / packetsTotal;
-        }
-
+                
         private double calculateDelayInSeconds(Packet previousPacket, Packet currentPacket)
         {
             return (currentPacket.Timestamp - previousPacket.Timestamp).TotalSeconds;
