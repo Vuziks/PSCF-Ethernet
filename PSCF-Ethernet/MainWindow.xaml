@@ -9,7 +9,7 @@
     <Grid>
         <Button Content="Open file" HorizontalAlignment="Left" Margin="10,333,0,0" VerticalAlignment="Top" Width="156" Click="OpenFile_Click" Height="48" FontSize="22"/>
         <Button Content="Receive traffic" HorizontalAlignment="Left" Margin="180,333,0,0" VerticalAlignment="Top" Width="156" Click="ReceiveTraffic_Click" Height="48" FontSize="22"/>
-        <Button Content="Calculate Jitter" HorizontalAlignment="Left" Margin="410,465,0,0" VerticalAlignment="Top" Click="Calculate_Jitter" Width="100"/>
+        <Button Content="Calculate Jitter" HorizontalAlignment="Left" Margin="20,444,0,0" VerticalAlignment="Top" Click="Calculate_Jitter" Width="100"/>
 
         <DataGrid x:Name="trafficData" AlternatingRowBackground="Silver" CanUserAddRows="False" AutoGenerateColumns="False" Margin="10,31,162,237">
             <DataGrid.Columns>
@@ -20,7 +20,6 @@
                 <DataGridTextColumn Header="Destination_Port" Binding="{Binding Path=DestinationPort}" />
                 <DataGridTextColumn Header="Delay [s]" Binding="{Binding Path=DelayInSeconds}" />
                 <DataGridTextColumn Header="Bytes per second" Binding="{Binding Path=BytesPerSecond}" />
-                <DataGridTextColumn Header="Jitter" Binding="{Binding Path=Jitter}" />
             </DataGrid.Columns>
         </DataGrid>
 
@@ -28,11 +27,16 @@
         <Label Content="Number of Other packets:" HorizontalAlignment="Left" Margin="635,10,0,0" VerticalAlignment="Top"/>
         <Label Content="Number of TCP packets:" HorizontalAlignment="Left" Margin="635,65,0,0" VerticalAlignment="Top"/>
         <Label Content="Number of UDP packets:" HorizontalAlignment="Left" Margin="635,120,0,0" VerticalAlignment="Top"/>
-        <Label Content="Start check control sum from bit (start from 0)" HorizontalAlignment="Left" Margin="341,324,0,0" VerticalAlignment="Top"/>
-        <Label Content="End on bit" HorizontalAlignment="Left" Margin="635,324,0,0" VerticalAlignment="Top"/>
+        <Label Content="Start check control sum 1" HorizontalAlignment="Left" Margin="341,324,0,0" VerticalAlignment="Top"/>
+        <Label Content="End check control sum 1" HorizontalAlignment="Left" Margin="485,324,0,0" VerticalAlignment="Top"/>
+        <Label Content="Control sum 1" HorizontalAlignment="Left" Margin="655,324,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.921,0.731"/>
+        <Label Content="Start check control sum 2" HorizontalAlignment="Left" Margin="341,374,0,0" VerticalAlignment="Top"/>
+        <Label Content="End check control sum 2" HorizontalAlignment="Left" Margin="485,374,0,0" VerticalAlignment="Top"/>
+        <Label Content="Control sum 2" HorizontalAlignment="Left" Margin="655,374,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.921,0.731"/>
         <Label Content="Check control sum on packets to calculate Jitter" HorizontalAlignment="Left" Margin="436,298,0,0" VerticalAlignment="Top"/>
-        <Label Content="Control sum" HorizontalAlignment="Left" Margin="420,386,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.921,0.731"/>
-        <Label Content="Margin of error (in ms)" HorizontalAlignment="Left" Margin="600,383,0,0" VerticalAlignment="Top"/>
+        <Label Content="Margin of error (in ms)" HorizontalAlignment="Left" Margin="621,438,0,0" VerticalAlignment="Top"/>
+        <Label Content="Assumed interval" HorizontalAlignment="Left" Margin="285,413,0,0" VerticalAlignment="Top"/>
+        <Label Content="Calculated jitter" HorizontalAlignment="Left" Margin="150,414,0,0" VerticalAlignment="Top"/>
 
 
         <ListBox HorizontalAlignment="Left" Height="24" Margin="645,36,0,0" VerticalAlignment="Top" Width="106" x:Name="otherBox"/>
@@ -40,10 +44,16 @@
         <ListBox HorizontalAlignment="Left" Height="24" Margin="645,91,0,0" VerticalAlignment="Top" Width="106" x:Name="tcpBox"/>
         <ListBox HorizontalAlignment="Left" Height="24" Margin="645,151,0,0" VerticalAlignment="Top" Width="106" x:Name="udpBox"/>
         
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="400,350,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="inputFromBox"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="605,350,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="inputToBox"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="400,415,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="controlSumBox"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="605,415,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="epsilonBox"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="605,462,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="jitterBox"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="400,350,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="inputFromBox1"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="535,350,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45" x:Name="inputToBox1"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="675,350,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="controlSumBox1"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="400,400,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="inputFromBox2"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="535,400,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45" x:Name="inputToBox2"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="675,400,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="controlSumBox2"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="672,462,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="43" x:Name="epsilonBox"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="135,445,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="jitterBox" RenderTransformOrigin="0,0.565"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="275,444,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="intervalBox"/>
+
+        <CheckBox Content="Check also sum 2" HorizontalAlignment="Left" Margin="475,445,0,0" VerticalAlignment="Top" x:Name="checkSecondControlSum"/>
     </Grid>
 </Window>

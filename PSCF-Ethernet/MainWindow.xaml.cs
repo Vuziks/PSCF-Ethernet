@@ -42,6 +42,7 @@ namespace PSCF_Ethernet
 
         private void ReceiveTraffic_Click(object sender, RoutedEventArgs e)
         {
+            if (packetsForJitter.Count > 0) packetsForJitter.Clear();
             if(fileName != "")
             {
                 OfflinePacketDevice selectedDevice = new OfflinePacketDevice(fileName);
@@ -71,6 +72,9 @@ namespace PSCF_Ethernet
 
         private void Calculate_Jitter(object sender, RoutedEventArgs e)
         {
+            jitterBox.Text = "";
+            intervalBox.Text = "";
+
             if (packetsForJitter.Count > 1 && epsilonBox.Text.Length > 0) //jesli sa wypelnione te pola
             {
                 var possibleIntervals = new Dictionary<double, int>(); //inicjalizacja zmiennych
@@ -98,7 +102,8 @@ namespace PSCF_Ethernet
                         mostFrequentInterval = interval.Key;
                     }
                 }
-                jitterBox.Text = ((int) calculateJitterOnGivenInterval(mostFrequentInterval)).ToString();   
+                jitterBox.Text = ((int) calculateJitterOnGivenInterval((int) mostFrequentInterval)).ToString();
+                intervalBox.Text = ((int) mostFrequentInterval).ToString();
             }
         }
 
@@ -118,7 +123,7 @@ namespace PSCF_Ethernet
             possibleIntervals.Add(currentInterval, 1); //jesli nie, dodaj taki interwał
         }
 
-        private double calculateJitterOnGivenInterval(double interval)
+        private double calculateJitterOnGivenInterval(int interval)
         {
             Packet previousPacket = null;
             double unstabilityTotal = 0.0;
@@ -141,30 +146,49 @@ namespace PSCF_Ethernet
 
         private void checkPacketForJitter(Packet packet)
         {
-            if (inputFromBox.Text.Length > 0 && inputToBox.Text.Length > 0 && controlSumBox.Text.Length > 0)
+            if (inputFromBox1.Text.Length > 0 && inputToBox1.Text.Length > 0 && controlSumBox1.Text.Length > 0)
             {
+                bool firstSumGood = false;
+                bool secondSumGood = false;
                 try
                 {
-                    int startBit = Int32.Parse(inputFromBox.Text);
-                    int endBit = Int32.Parse(inputToBox.Text);
-                    int controlSum = Int32.Parse(controlSumBox.Text);
-                    int currentSum = 0;
-                    for (int i = startBit; i <= endBit; i++)
-                    {
-                        currentSum += packet.Buffer[i];
-                    }
-                    if (currentSum.Equals(controlSum))
-                    {
-                        packetsForJitter.Add(packet);
-                    }
+                    firstSumGood = checkControlSumAndAdd(packet, inputFromBox1, inputToBox1, controlSumBox1);
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message + "\n error parsing to value");
                 }
-
+                if ((bool)checkSecondControlSum.IsChecked &&
+                    inputFromBox2.Text.Length > 0 && inputToBox2.Text.Length > 0 && controlSumBox2.Text.Length > 0)
+                {
+                    secondSumGood = checkControlSumAndAdd(packet, inputFromBox2, inputToBox2, controlSumBox2);
+                }
+                
+                if ((firstSumGood && !(bool)checkSecondControlSum.IsChecked) || ((bool)checkSecondControlSum.IsChecked && firstSumGood && secondSumGood))
+                {
+                    packetsForJitter.Add(packet);
+                }
             }
 
+        }
+
+        private bool checkControlSumAndAdd(Packet packet, System.Windows.Controls.TextBox startBitBox,
+            System.Windows.Controls.TextBox endBitBox,
+            System.Windows.Controls.TextBox controlSumBox)
+        {
+            int startBit = Int32.Parse(startBitBox.Text);
+            int endBit = Int32.Parse(endBitBox.Text);
+            int controlSum = Int32.Parse(controlSumBox.Text);
+            int currentSum = 0;
+            for (int i = startBit; i <= endBit; i++)
+            {
+                currentSum += packet.Buffer[i];
+            }
+            if (currentSum.Equals(controlSum))
+            {
+               return true;
+            }
+            return false;
         }
 
         private void clearAll()
@@ -296,6 +320,5 @@ namespace PSCF_Ethernet
         public ushort DestinationPort { get; set; }
         public double DelayInSeconds { get; set; }
         public int BytesPerSecond { get; set; }
-        public int Jitter { get; set; }
     }
 }
