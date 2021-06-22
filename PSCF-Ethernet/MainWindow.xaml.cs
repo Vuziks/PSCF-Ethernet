@@ -84,19 +84,7 @@ namespace PSCF_Ethernet
                     }
                     else
                     {
-                        foreach (KeyValuePair<double, int> interval in possibleIntervals)       //sprobuj znalezc istniejacy interwał
-                        {
-                            if (Math.Abs(interval.Key - currentInterval) < marginOfError)       //jesli jest juz taki interwał zikrementuj liczbe wystapien
-                            {
-                                KeyValuePair<double, int> intervalToIncrement = interval;
-                                possibleIntervals.Remove(interval.Key);
-                                possibleIntervals.Add(interval.Key, interval.Value + 1);
-                            }
-                            else                                                                //jesli nie, dodaj taki interwał
-                            {
-                                possibleIntervals.Add(currentInterval, 1);
-                            }
-                        }
+                        IncrementExistingOrAddNewInterval(possibleIntervals, marginOfError, currentInterval);
                     }
                 }
                 //wybieranie najczesciej wystepujacego interwalu
@@ -114,6 +102,22 @@ namespace PSCF_Ethernet
             }
         }
 
+        private static void IncrementExistingOrAddNewInterval(Dictionary<double, int> possibleIntervals, double marginOfError, double currentInterval)
+        {
+            List<double> intervals = new List<double>(possibleIntervals.Keys);
+            foreach (double interval in intervals)       //sprobuj znalezc istniejacy interwał
+            {
+                if (Math.Abs(interval - currentInterval) < marginOfError)       //jesli jest juz taki interwał zikrementuj liczbe wystapien
+                {
+                    KeyValuePair<double, int> intervalToIncrement = new KeyValuePair<double, int>(interval, possibleIntervals[interval] + 1);
+                    possibleIntervals.Remove(interval);
+                    possibleIntervals.Add(intervalToIncrement.Key, intervalToIncrement.Value);
+                    return;
+                }
+            }
+            possibleIntervals.Add(currentInterval, 1); //jesli nie, dodaj taki interwał
+        }
+
         private double calculateJitterOnGivenInterval(double interval)
         {
             Packet previousPacket = null;
@@ -126,11 +130,12 @@ namespace PSCF_Ethernet
                 }
                 else
                 {
-                    double delay = (previousPacket.Timestamp - packet.Timestamp).TotalMilliseconds;
+                    double delay = Math.Abs((previousPacket.Timestamp - packet.Timestamp).TotalMilliseconds);
                     unstabilityTotal += Math.Abs(interval - delay);
                 }
+                previousPacket = packet;
             }
-            double jitter = packetsForJitter.Count / unstabilityTotal;
+            double jitter = unstabilityTotal / packetsForJitter.Count;
             return jitter;
         }
 
