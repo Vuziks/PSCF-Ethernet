@@ -325,7 +325,6 @@ namespace PSCF_Ethernet
                 previousPacket = packet;
 
             countPackets(packet);
-            packetsTotal++;
 
             IpV4Datagram ip = packet.Ethernet.IpV4;
             UdpDatagram udp = ip.Udp;
@@ -336,11 +335,6 @@ namespace PSCF_Ethernet
             checkPacketForJitter(packet);
 
             index++;
-
-            if(packetsTotal == 1958)
-            {
-                int x = 99;
-            }
 
             try
             {
