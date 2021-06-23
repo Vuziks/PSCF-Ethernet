@@ -325,6 +325,7 @@ namespace PSCF_Ethernet
                 previousPacket = packet;
 
             countPackets(packet);
+            packetsTotal++;
 
             IpV4Datagram ip = packet.Ethernet.IpV4;
             UdpDatagram udp = ip.Udp;
@@ -336,15 +337,37 @@ namespace PSCF_Ethernet
 
             index++;
 
-            dataGrid.Add(new DataGrid() {
-                Id = index,
-                SourceIP = ip.Source,
-                SourcePort = udp != null ? udp.SourcePort : (ushort)0,
-                DestinationIP = ip.Destination,
-                DestinationPort = udp != null ? udp.DestinationPort : (ushort)0,
-                DelayInSeconds = delayInSeconds,
-                BytesPerSecond = (int)bytesPerSecond
-            });
+            if(packetsTotal == 1958)
+            {
+                int x = 99;
+            }
+
+            try
+            {
+                dataGrid.Add(new DataGrid()
+                {
+                    Id = index,
+                    SourceIP = ip.Source,
+                    SourcePort = udp != null ? udp.SourcePort : (ushort)0,
+                    DestinationIP = ip.Destination,
+                    DestinationPort = udp != null ? udp.DestinationPort : (ushort)0,
+                    DelayInSeconds = delayInSeconds,
+                    BytesPerSecond = (int)bytesPerSecond
+                });
+            }
+            catch (IndexOutOfRangeException e)
+            {
+                dataGrid.Add(new DataGrid()
+                {
+                    Id = index,
+                    SourceIP = new IpV4Address("0.0.0.0"),
+                    SourcePort = (ushort)0,
+                    DestinationIP = new IpV4Address("0.0.0.0"),
+                    DestinationPort = (ushort)0,
+                    DelayInSeconds = delayInSeconds,
+                    BytesPerSecond = (int)bytesPerSecond
+                }); 
+            }
         }
                 
         private double calculateDelayInSeconds(Packet previousPacket, Packet currentPacket)
