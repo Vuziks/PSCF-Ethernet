@@ -6,6 +6,7 @@ using System;
 using System.Numerics;
 using System.Windows;
 using LiveCharts;
+using LiveCharts.Defaults;
 using LiveCharts.Wpf;
 using System.Collections.Generic;
 
@@ -35,6 +36,21 @@ namespace PSCF_Ethernet
         public ulong packetsTotal = 0;
         //#####################################################
 
+        // TMP
+        // Check work of chart
+        //#####################################################
+        private Random rand = new Random(0);
+        private double[] RandomWalk(int points = 5, double start = 100, double mult = 50)
+        {
+            // return an array of difting random numbers
+            double[] values = new double[points];
+            values[0] = start;
+            for (int i = 1; i < points; i++)
+                values[i] = values[i - 1] + (rand.NextDouble() - .5) * mult;
+            return values;
+        }
+        //#####################################################
+
         public MainWindow()
         {
             InitializeComponent();
@@ -42,6 +58,33 @@ namespace PSCF_Ethernet
 
         private void ReceiveTraffic_Click(object sender, RoutedEventArgs e)
         {
+            // TMP
+            // To check work of Chart
+            //#####################################################
+            // generate some random Y data
+            int pointCount = 5;
+            double[] ys1 = RandomWalk(pointCount);
+            double[] ys2 = RandomWalk(pointCount);
+
+            // create series and populate them with data
+            var series1 = new LiveCharts.Wpf.ColumnSeries
+            {
+                Title = "Group A",
+                Values = new LiveCharts.ChartValues<double>(ys1)
+            };
+
+            var series2 = new LiveCharts.Wpf.ColumnSeries()
+            {
+                Title = "Group B",
+                Values = new LiveCharts.ChartValues<double>(ys2)
+            };
+
+            // display the series in the chart control
+            cartChart.Series.Clear();
+            cartChart.Series.Add(series1);
+            cartChart.Series.Add(series2);
+            //#####################################################
+
             if (packetsForJitter.Count > 0) packetsForJitter.Clear();
             if(fileName != "")
             {
