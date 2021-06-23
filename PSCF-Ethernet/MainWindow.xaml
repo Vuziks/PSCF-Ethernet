@@ -59,8 +59,7 @@
         <CheckBox Content="Check also sum 2" HorizontalAlignment="Left" Margin="41,430,0,0" VerticalAlignment="Top" x:Name="checkSecondControlSum"/>
 
         <Border BorderThickness="2" BorderBrush="Black" Margin="617,339,10,10">
-            <lvc:CartesianChart HorizontalAlignment="Left" Height="300" Margin="8,8,0,0" VerticalAlignment="Top" Width="545" x:Name="cartChart">
-            </lvc:CartesianChart>
+            <lvc:CartesianChart HorizontalAlignment="Left" Height="300" Margin="8,8,0,0" VerticalAlignment="Top" Width="545" x:Name="cartChart" />
         </Border>
 
 

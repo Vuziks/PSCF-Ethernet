@@ -39,16 +39,16 @@ namespace PSCF_Ethernet
         // TMP
         // Check work of chart
         //#####################################################
-        private Random rand = new Random(0);
-        private double[] RandomWalk(int points = 5, double start = 100, double mult = 50)
-        {
+        //private Random rand = new Random(0);
+        //private double[] RandomWalk(int points = 5, double start = 100, double mult = 50)
+        //{
             // return an array of difting random numbers
-            double[] values = new double[points];
-            values[0] = start;
-            for (int i = 1; i < points; i++)
-                values[i] = values[i - 1] + (rand.NextDouble() - .5) * mult;
-            return values;
-        }
+        //    double[] values = new double[points];
+        //    values[0] = start;
+        //    for (int i = 1; i < points; i++)
+        //        values[i] = values[i - 1] + (rand.NextDouble() - .5) * mult;
+        //    return values;
+        //}
         //#####################################################
 
         public MainWindow()
@@ -62,27 +62,28 @@ namespace PSCF_Ethernet
             // To check work of Chart
             //#####################################################
             // generate some random Y data
-            int pointCount = 5;
-            double[] ys1 = RandomWalk(pointCount);
-            double[] ys2 = RandomWalk(pointCount);
+            //int pointCount = 5;
+            //double[] ys1 = RandomWalk(pointCount);
+            //double[] ys2 = RandomWalk(pointCount);
+            //int[] ys0 = { amountTCP+1, amountUDP, amountOther+2 };
 
             // create series and populate them with data
-            var series1 = new LiveCharts.Wpf.ColumnSeries
-            {
-                Title = "Group A",
-                Values = new LiveCharts.ChartValues<double>(ys1)
-            };
+            //var series1 = new LiveCharts.Wpf.ColumnSeries
+            //{
+            //   Title = "Group A",
+            //    Values = new LiveCharts.ChartValues<int>(ys0)
+            //};
 
-            var series2 = new LiveCharts.Wpf.ColumnSeries()
-            {
-                Title = "Group B",
-                Values = new LiveCharts.ChartValues<double>(ys2)
-            };
+            //var series2 = new LiveCharts.Wpf.ColumnSeries()
+            //{
+            //    Title = "Group B",
+            //    Values = new LiveCharts.ChartValues<double>()
+            //};
 
             // display the series in the chart control
-            cartChart.Series.Clear();
-            cartChart.Series.Add(series1);
-            cartChart.Series.Add(series2);
+            //cartChart.Series.Clear();
+            //cartChart.Series.Add(series1);
+            //cartChart.Series.Add(series2);
             //#####################################################
 
             if (packetsForJitter.Count > 0) packetsForJitter.Clear();
@@ -101,11 +102,48 @@ namespace PSCF_Ethernet
                     communicator.ReceivePackets(0, DispatcherHandler);
                 }
 
+                // Fill DataGrid
                 trafficData.ItemsSource = dataGrid;
 
+                // Fill amount Box'y
                 otherBox.Items.Add(amountOther);
                 tcpBox.Items.Add(amountTCP);
                 udpBox.Items.Add(amountUDP);
+
+                //
+                int[] ysTCP = { amountTCP };
+                int[] ysUDP = { amountUDP };
+                int[] ysOther = { amountOther };
+                int[] ysAll = { amountTCP + amountUDP + amountOther };
+
+                // create series and populate them with data
+                var seriesTCP = new LiveCharts.Wpf.ColumnSeries
+                {
+                    Title = "TCP",
+                    Values = new LiveCharts.ChartValues<int>(ysTCP)
+                };
+                var seriesUDP = new LiveCharts.Wpf.ColumnSeries
+                {
+                    Title = "UDP",
+                    Values = new LiveCharts.ChartValues<int>(ysUDP)
+                };
+                var seriesOther = new LiveCharts.Wpf.ColumnSeries
+                {
+                    Title = "Other",
+                    Values = new LiveCharts.ChartValues<int>(ysOther)
+                };
+                var seriesAll = new LiveCharts.Wpf.ColumnSeries
+                {
+                    Title = "All",
+                    Values = new LiveCharts.ChartValues<int>(ysAll)
+                };
+
+                // display the series in the chart control
+                cartChart.Series.Clear();
+                cartChart.Series.Add(seriesTCP);
+                cartChart.Series.Add(seriesUDP);
+                cartChart.Series.Add(seriesOther);
+                cartChart.Series.Add(seriesAll);
             }
             else
             {
@@ -257,6 +295,8 @@ namespace PSCF_Ethernet
             pathBox.Items.Clear();
             tcpBox.Items.Clear();
             udpBox.Items.Clear();
+
+            cartChart.Series.Clear();
         }
 
         private void countPackets(Packet packet)
