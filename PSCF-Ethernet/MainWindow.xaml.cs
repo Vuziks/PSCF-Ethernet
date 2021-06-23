@@ -110,7 +110,7 @@ namespace PSCF_Ethernet
                 tcpBox.Items.Add(amountTCP);
                 udpBox.Items.Add(amountUDP);
 
-                //
+                // Create value to the series
                 int[] ysTCP = { amountTCP };
                 int[] ysUDP = { amountUDP };
                 int[] ysOther = { amountOther };
