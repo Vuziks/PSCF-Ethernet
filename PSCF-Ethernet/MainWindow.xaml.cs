@@ -339,9 +339,9 @@ namespace PSCF_Ethernet
             dataGrid.Add(new DataGrid() {
                 Id = index,
                 SourceIP = ip.Source,
-                SourcePort = udp.SourcePort,
+                SourcePort = udp != null ? udp.SourcePort : (ushort)0,
                 DestinationIP = ip.Destination,
-                DestinationPort = udp.DestinationPort,
+                DestinationPort = udp != null ? udp.DestinationPort : (ushort)0,
                 DelayInSeconds = delayInSeconds,
                 BytesPerSecond = (int)bytesPerSecond
             });
