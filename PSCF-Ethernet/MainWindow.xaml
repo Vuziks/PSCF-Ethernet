@@ -7,63 +7,123 @@
         
         xmlns:local="clr-namespace:PSCF_Ethernet"
         mc:Ignorable="d"
-        Title="POLSLshark" Height="700" Width="1200">
+        Title="POLSLshark" Height="756" Width="1344">
     <Grid>
-        <Button Content="Open file" HorizontalAlignment="Left" Margin="10,583,0,0" VerticalAlignment="Top" Width="156" Click="OpenFile_Click" Height="48" FontSize="22"/>
-        <Button Content="Receive traffic" HorizontalAlignment="Left" Margin="10,339,0,0" VerticalAlignment="Top" Width="156" Click="ReceiveTraffic_Click" Height="48" FontSize="22"/>
-        <Button Content="Calculate Jitter" HorizontalAlignment="Left" Margin="10,542,0,0" VerticalAlignment="Top" Click="Calculate_Jitter" Width="100"/>
-
-        <DataGrid x:Name="trafficData" AlternatingRowBackground="Silver" CanUserAddRows="False" AutoGenerateColumns="False" Margin="10,31,568,350">
+        <!--
+            Upper Left Part Of The Window:
+            - Traffic Monitor Label
+            - DataGrid Table
+            - Reacive Traffic Button
+            ##############################################################
+        -->
+        <Label Content="Traffic Monitor" HorizontalAlignment="Left" Margin="215,10,0,0" VerticalAlignment="Top" FontSize="22" />
+        
+        <DataGrid x:Name="trafficData" AlternatingRowBackground="Silver" CanUserAddRows="False" AutoGenerateColumns="False" Margin="15,54,696,327">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="No." Binding="{Binding Path=Id}" />
                 <DataGridTextColumn Header="Source_IP" Binding="{Binding Path=SourceIP}" />
                 <DataGridTextColumn Header="Source_Port" Binding="{Binding Path=SourcePort}" />
                 <DataGridTextColumn Header="Destination_IP" Binding="{Binding Path=DestinationIP}" />
                 <DataGridTextColumn Header="Destination_Port" Binding="{Binding Path=DestinationPort}" />
+                <DataGridTextColumn Header="Protocol" Binding="{Binding Path=Protocol}" />
                 <DataGridTextColumn Header="Delay [s]" Binding="{Binding Path=DelayInSeconds}" />
                 <DataGridTextColumn Header="Bytes per second" Binding="{Binding Path=BytesPerSecond}" />
             </DataGrid.Columns>
         </DataGrid>
-
-        <Label Content="Traffic Monitor" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
-        <Label Content="Number of Other packets:" HorizontalAlignment="Left" Margin="635,10,0,0" VerticalAlignment="Top"/>
-        <Label Content="Number of TCP packets:" HorizontalAlignment="Left" Margin="635,65,0,0" VerticalAlignment="Top"/>
-        <Label Content="Number of UDP packets:" HorizontalAlignment="Left" Margin="635,120,0,0" VerticalAlignment="Top"/>
-        <Label Content="Start byte 1" HorizontalAlignment="Left" Margin="254,370,0,0" VerticalAlignment="Top" Width="82"/>
-        <Label Content="End byte 1" HorizontalAlignment="Left" Margin="364,370,0,0" VerticalAlignment="Top"/>
-        <Label Content="Control sequence 1" HorizontalAlignment="Left" Margin="482,370,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.921,0.731"/>
-        <Label Content="Start byte 2" HorizontalAlignment="Left" Margin="254,424,0,0" VerticalAlignment="Top" Width="82"/>
-        <Label Content="End byte 2" HorizontalAlignment="Left" Margin="364,427,0,0" VerticalAlignment="Top"/>
-        <Label Content="Control sequence 2" HorizontalAlignment="Left" Margin="482,424,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.921,0.731"/>
-        <Label Content="Check control byte sequence on packets to calculate Jitter (dash separated)" HorizontalAlignment="Left" Margin="210,339,0,0" VerticalAlignment="Top"/>
-        <Label Content="Margin of error (in ms)" HorizontalAlignment="Left" Margin="482,483,0,0" VerticalAlignment="Top"/>
-        <Label Content="Assumed interval" HorizontalAlignment="Left" Margin="266,508,0,0" VerticalAlignment="Top"/>
-        <Label Content="Calculated jitter" HorizontalAlignment="Left" Margin="136,508,0,0" VerticalAlignment="Top"/>
-        <Label Content="Start byte, end byte, control sequence or margin of error not filled." Visibility="Hidden" Foreground="Red" HorizontalAlignment="Left" Margin="191,567,0,0" VerticalAlignment="Top" Width="379" x:Name="textBoxNotFilledLabel"/>
-        <Label Content="No packets fullfiling requirements." Visibility="Hidden" Foreground="OrangeRed" HorizontalAlignment="Left" Margin="191,593,0,0" VerticalAlignment="Top" Width="353" x:Name="noPacketsLabel"/>
-
-
-        <ListBox HorizontalAlignment="Left" Height="24" Margin="645,36,0,0" VerticalAlignment="Top" Width="106" x:Name="otherBox"/>
-        <ListBox HorizontalAlignment="Left" Height="23" Margin="0,636,0,0" VerticalAlignment="Top" Width="326" x:Name="pathBox"/>
-        <ListBox HorizontalAlignment="Left" Height="24" Margin="645,91,0,0" VerticalAlignment="Top" Width="106" x:Name="tcpBox"/>
-        <ListBox HorizontalAlignment="Left" Height="24" Margin="645,151,0,0" VerticalAlignment="Top" Width="106" x:Name="udpBox"/>
-
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="266,396,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="inputFromBox1"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="375,401,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45" x:Name="inputToBox1"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="470,400,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="135" x:Name="controlSumBox1"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="266,455,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="inputFromBox2"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="375,455,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45" x:Name="inputToBox2"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="470,455,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="135" x:Name="controlSumBox2"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="527,511,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="43" x:Name="epsilonBox"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="123,539,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="jitterBox" RenderTransformOrigin="0,0.565"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="257,539,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="intervalBox"/>
-
-        <CheckBox Content="Check also sequence 2" HorizontalAlignment="Left" Margin="41,430,0,0" VerticalAlignment="Top" x:Name="checkSecondControlSum"/>
-
-        <Border BorderThickness="2" BorderBrush="Black" Margin="617,339,10,10">
+        
+        <Button Content="Receive Traffic" HorizontalAlignment="Left" Margin="15,405,0,0" VerticalAlignment="Top" Width="156" Click="ReceiveTraffic_Click" Height="48" FontSize="22"/>
+        <!--
+            ##############################################################
+        -->
+        <!--
+            Upper Right Part Of The Window:
+            - Amount Of Packets Label
+            - Border
+            - Cartesian Chart
+            ##############################################################
+        -->
+        <Label Content="Amount Of Packets" HorizontalAlignment="Left" Margin="880,10,0,0" VerticalAlignment="Top" FontSize="22" />
+        
+        <Border BorderThickness="2" BorderBrush="Black" Margin="645,54,10,327">
             <lvc:CartesianChart LegendLocation="Bottom"  HorizontalAlignment="Left" Height="300" Margin="8,8,0,0" VerticalAlignment="Top" Width="545" x:Name="cartChart" />
         </Border>
+        <!--
+            ##############################################################
+        -->
+        <!--
+            Bottom Right Part Of The Window:
+            - A Lot Of Labels
+            - A Lot OF TextBoxes
+            - Calculate Jitter Button
+            ##############################################################
+        -->
+        <Label Content="Check control byte sequence on packets to calculate Jitter (dash separated)" HorizontalAlignment="Left" Margin="668,413,0,0" VerticalAlignment="Top" FontSize="19" />
+        
+        <Border BorderThickness="2" BorderBrush="Black" Margin="645,453,10,18">
+        </Border>
 
+        <Label Content="Start byte 1" HorizontalAlignment="Left" Margin="657,467,0,0" VerticalAlignment="Top" Width="82" FontSize="12"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="729,470,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="50" x:Name="inputFromBox1"/>
 
+        <Label Content="End byte 1" HorizontalAlignment="Left" Margin="832,467,0,0" VerticalAlignment="Top" FontSize="12"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="898,470,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="50" x:Name="inputToBox1"/>
+
+        <Label Content="Control sequence 1" HorizontalAlignment="Left" Margin="1018,467,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.921,0.731" FontSize="12"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="1131,470,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="135" x:Name="controlSumBox1"/>
+
+        <CheckBox Content="Check also sequence 2" HorizontalAlignment="Left" Margin="657,514,0,0" VerticalAlignment="Top" x:Name="checkSecondControlSum"/>
+
+        <Label Content="Start byte 2" HorizontalAlignment="Left" Margin="657,549,0,0" VerticalAlignment="Top" Width="82" FontSize="12"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="729,552,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="50" x:Name="inputFromBox2"/>
+
+        <Label Content="End byte 2" HorizontalAlignment="Left" Margin="832,549,0,0" VerticalAlignment="Top" FontSize="12"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="898,552,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="50" x:Name="inputToBox2"/>
+
+        <Label Content="Control sequence 2" HorizontalAlignment="Left" Margin="1018,549,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.921,0.731" FontSize="12"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="1131,549,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="135" x:Name="controlSumBox2"/>
+
+        <Label Content="Margin of error (in ms)" HorizontalAlignment="Left" Margin="657,593,0,0" VerticalAlignment="Top" FontSize="12"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="787,596,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="50" x:Name="epsilonBox"/>
+        
+        <Button Content="Calculate Jitter" HorizontalAlignment="Left" Margin="657,642,0,0" VerticalAlignment="Top" Click="CalculateJitter_Click" Width="156" FontSize="22" Height="48"/>
+
+        <Label Content="Calculated jitter" HorizontalAlignment="Left" Margin="888,631,0,0" VerticalAlignment="Top" Width="140" FontSize="16"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="880,667,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="140" x:Name="jitterBox" RenderTransformOrigin="0,0.565" FontSize="16"/>
+
+        <Label Content="Assumed interval" HorizontalAlignment="Left" Margin="1072,631,0,0" VerticalAlignment="Top" FontSize="16"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="1077,667,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="intervalBox" FontSize="16"/>
+
+        <Label Content="Start byte, end byte, control sequence or margin of error not filled." Visibility="Hidden" Foreground="Red" HorizontalAlignment="Left" Margin="928,580,0,0" VerticalAlignment="Top" Width="379" x:Name="textBoxNotFilledLabel"/>
+        <Label Content="No packets fullfiling requirements." Visibility="Hidden" Foreground="OrangeRed" HorizontalAlignment="Left" Margin="928,601,0,0" VerticalAlignment="Top" Width="353" x:Name="noPacketsLabel"/>
+        <!--
+            ##############################################################
+        -->
+        <!--
+            Middle Right Part Of The Window:
+            - Amount Of Other Packets Label & ListBox
+            - Amount Of TCP Packets Label & ListBox
+            - Amount Of UDP Packets Label & ListBox
+            ##############################################################
+        -->
+        <Label Content="Number of Other packets:" HorizontalAlignment="Left" Margin="426,413,0,0" VerticalAlignment="Top"/>
+        <ListBox HorizontalAlignment="Left" Height="24" Margin="438,444,0,0" VerticalAlignment="Top" Width="106" x:Name="otherBox"/>
+        <Label Content="Number of TCP packets:" HorizontalAlignment="Left" Margin="426,475,0,0" VerticalAlignment="Top"/>
+        <ListBox HorizontalAlignment="Left" Height="24" Margin="438,506,0,0" VerticalAlignment="Top" Width="106" x:Name="tcpBox"/>
+        <Label Content="Number of UDP packets:" HorizontalAlignment="Left" Margin="426,535,0,0" VerticalAlignment="Top"/>
+        <ListBox HorizontalAlignment="Left" Height="24" Margin="438,566,0,0" VerticalAlignment="Top" Width="106" x:Name="udpBox"/>
+        <!--
+            ##############################################################
+        -->
+        <!--
+            Bottom Left Part Of The Window:
+            - Open File Button
+            - Path Box
+            ##############################################################
+        -->
+        <Button Content="Open file" HorizontalAlignment="Left" Margin="15,631,0,0" VerticalAlignment="Top" Width="156" Click="OpenFile_Click" Height="48" FontSize="22"/>
+        <ListBox HorizontalAlignment="Left" Height="23" Margin="15,684,0,0" VerticalAlignment="Top" Width="326" x:Name="pathBox"/>
+        <!--
+            ##############################################################
+        -->
     </Grid>
 </Window>

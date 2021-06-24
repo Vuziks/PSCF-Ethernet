@@ -37,56 +37,58 @@ namespace PSCF_Ethernet
         public ulong packetsTotal = 0;
         //#####################################################
 
-        // TMP
-        // Check work of chart
-        //#####################################################
-        //private Random rand = new Random(0);
-        //private double[] RandomWalk(int points = 5, double start = 100, double mult = 50)
-        //{
-            // return an array of difting random numbers
-        //    double[] values = new double[points];
-        //    values[0] = start;
-        //    for (int i = 1; i < points; i++)
-        //        values[i] = values[i - 1] + (rand.NextDouble() - .5) * mult;
-        //    return values;
-        //}
-        //#####################################################
 
+        // Default Constructor
+        //#####################################################
         public MainWindow()
         {
             InitializeComponent();
         }
+        //#####################################################
 
+
+        // OpenFile_Click - BUTTON
+        //#####################################################
+        private void OpenFile_Click(object sender, RoutedEventArgs e)
+        {
+            // Clear all variables and contents from MainWindow
+            clearAll();
+
+            // Create OpenFileDialog 
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+
+            // Set filter for file extension and default file extension 
+            dlg.DefaultExt = ".pcap";
+            dlg.Filter = "Wireshark capture file (*.pcap)|*.pcap";
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            Nullable<bool> result = dlg.ShowDialog();
+
+            // Get the selected file name and display in a TextBox 
+            if (result == true)
+            {
+                // Get file path
+                fileName = dlg.FileName;
+            }
+
+            if (fileName != "")
+            {
+                // Show file path in pathBox
+                pathBox.Items.Add(fileName);
+            }
+            else
+            {
+                // Show appropriate message in pathBox
+                pathBox.Items.Add("First choose file to analyze!!!");
+            }
+        }
+        //#####################################################
+
+
+        // ReceiveTraffic_Click - BUTTON
+        //#####################################################
         private void ReceiveTraffic_Click(object sender, RoutedEventArgs e)
         {
-            // TMP
-            // To check work of Chart
-            //#####################################################
-            // generate some random Y data
-            //int pointCount = 5;
-            //double[] ys1 = RandomWalk(pointCount);
-            //double[] ys2 = RandomWalk(pointCount);
-            //int[] ys0 = { amountTCP+1, amountUDP, amountOther+2 };
-
-            // create series and populate them with data
-            //var series1 = new LiveCharts.Wpf.ColumnSeries
-            //{
-            //   Title = "Group A",
-            //    Values = new LiveCharts.ChartValues<int>(ys0)
-            //};
-
-            //var series2 = new LiveCharts.Wpf.ColumnSeries()
-            //{
-            //    Title = "Group B",
-            //    Values = new LiveCharts.ChartValues<double>()
-            //};
-
-            // display the series in the chart control
-            //cartChart.Series.Clear();
-            //cartChart.Series.Add(series1);
-            //cartChart.Series.Add(series2);
-            //#####################################################
-
             if (packetsForJitter.Count > 0) packetsForJitter.Clear();
             noPacketsLabel.Visibility = Visibility.Hidden;
             textBoxNotFilledLabel.Visibility = Visibility.Hidden;
@@ -153,8 +155,12 @@ namespace PSCF_Ethernet
                 pathBox.Items.Add("First choose file to analyze!!!");
             }
         }
+        //#####################################################
 
-        private void Calculate_Jitter(object sender, RoutedEventArgs e)
+
+        // CalculateJitter_Click - BUTTON
+        //#####################################################
+        private void CalculateJitter_Click(object sender, RoutedEventArgs e)
         {
             noPacketsLabel.Visibility = Visibility.Hidden;
             textBoxNotFilledLabel.Visibility = Visibility.Hidden;
@@ -206,6 +212,63 @@ namespace PSCF_Ethernet
                 else if (epsilonBox.Text.Length < 1) textBoxNotFilledLabel.Visibility = Visibility.Visible;
             }
         }
+        //#####################################################
+
+
+        // MOST IMPORTANT FUNCTION
+        //#####################################################
+        private void DispatcherHandler(Packet packet)
+        {
+            if (previousPacket == null)
+                previousPacket = packet;
+
+            countPackets(packet);
+
+            IpV4Datagram ip = packet.Ethernet.IpV4;
+            UdpDatagram udp = ip.Udp;
+
+            double delayInSeconds = calculateDelayInSeconds(previousPacket, packet);
+            totalDelay += delayInSeconds;
+            double bytesPerSecond = calculateBytesPerSecond(packet, delayInSeconds);
+            allCapturedPackets.Add(packet);
+
+            index++;
+
+            try
+            {
+                dataGrid.Add(new DataGrid()
+                {
+                    Id = index,
+                    SourceIP = ip.Source,
+                    SourcePort = udp != null ? udp.SourcePort : (ushort)0,
+                    DestinationIP = ip.Destination,
+                    DestinationPort = udp != null ? udp.DestinationPort : (ushort)0,
+                    Protocol = packet.Ethernet.IpV4.Protocol.ToString(),
+                    DelayInSeconds = delayInSeconds,
+                    BytesPerSecond = (int)bytesPerSecond
+                });
+            }
+            catch (IndexOutOfRangeException e)
+            {
+                dataGrid.Add(new DataGrid()
+                {
+                    Id = index,
+                    SourceIP = new IpV4Address("0.0.0.0"),
+                    SourcePort = (ushort)0,
+                    DestinationIP = new IpV4Address("0.0.0.0"),
+                    DestinationPort = (ushort)0,
+                    Protocol = "ERROR",
+                    DelayInSeconds = delayInSeconds,
+                    BytesPerSecond = (int)bytesPerSecond
+                });
+            }
+        }
+        //#####################################################
+
+
+
+
+
 
         private static void IncrementExistingOrAddNewInterval(Dictionary<double, int> possibleIntervals, double marginOfError, double currentInterval)
         {
@@ -292,6 +355,8 @@ namespace PSCF_Ethernet
         private void clearAll()
         {
             dataGrid.Clear();
+            packetsForJitter.Clear();
+            allCapturedPackets.Clear();
             trafficData.ItemsSource = null;
 
             previousPacket = null;
@@ -342,51 +407,7 @@ namespace PSCF_Ethernet
             }
         }
 
-        private void DispatcherHandler(Packet packet)
-        {
-            //trafficBox.Items.Add(packet.Timestamp.ToString("yyyy-MM-dd hh:mm:ss.fff") + " length:" + packet.Length);
-            if (previousPacket == null) 
-                previousPacket = packet;
-
-            countPackets(packet);
-
-            IpV4Datagram ip = packet.Ethernet.IpV4;
-            UdpDatagram udp = ip.Udp;
-
-            double delayInSeconds = calculateDelayInSeconds(previousPacket, packet);
-            totalDelay += delayInSeconds;
-            double bytesPerSecond = calculateBytesPerSecond(packet, delayInSeconds);
-            allCapturedPackets.Add(packet);
-
-            index++;
-
-            try
-            {
-                dataGrid.Add(new DataGrid()
-                {
-                    Id = index,
-                    SourceIP = ip.Source,
-                    SourcePort = udp != null ? udp.SourcePort : (ushort)0,
-                    DestinationIP = ip.Destination,
-                    DestinationPort = udp != null ? udp.DestinationPort : (ushort)0,
-                    DelayInSeconds = delayInSeconds,
-                    BytesPerSecond = (int)bytesPerSecond
-                });
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                dataGrid.Add(new DataGrid()
-                {
-                    Id = index,
-                    SourceIP = new IpV4Address("0.0.0.0"),
-                    SourcePort = (ushort)0,
-                    DestinationIP = new IpV4Address("0.0.0.0"),
-                    DestinationPort = (ushort)0,
-                    DelayInSeconds = delayInSeconds,
-                    BytesPerSecond = (int)bytesPerSecond
-                }); 
-            }
-        }
+        
                 
         private double calculateDelayInSeconds(Packet previousPacket, Packet currentPacket)
         {
@@ -402,37 +423,7 @@ namespace PSCF_Ethernet
             return 0;
         }
 
-        private void OpenFile_Click(object sender, RoutedEventArgs e)
-        {
-            // Clear all variables and contents from MainWindow
-            clearAll();
-
-            // Create OpenFileDialog 
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-
-            // Set filter for file extension and default file extension 
-            dlg.DefaultExt = ".pcap";
-            dlg.Filter = "Wireshark capture file (*.pcap)|*.pcap";
-
-            // Display OpenFileDialog by calling ShowDialog method 
-            Nullable<bool> result = dlg.ShowDialog();
-
-            // Get the selected file name and display in a TextBox 
-            if (result == true)
-            {
-                // Get file path
-                fileName = dlg.FileName;
-            }
-
-            if(fileName != "")
-            {
-                pathBox.Items.Add(fileName);
-            }
-            else
-            {
-                pathBox.Items.Add("First choose file to analyze!!!");
-            }
-        }
+        
     }
 
     public class DataGrid
@@ -442,6 +433,7 @@ namespace PSCF_Ethernet
         public ushort SourcePort { get; set; }
         public IpV4Address DestinationIP { get; set; }
         public ushort DestinationPort { get; set; }
+        public string Protocol { get; set; }
         public double DelayInSeconds { get; set; }
         public int BytesPerSecond { get; set; }
     }
