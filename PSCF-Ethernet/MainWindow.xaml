@@ -29,16 +29,18 @@
         <Label Content="Number of Other packets:" HorizontalAlignment="Left" Margin="635,10,0,0" VerticalAlignment="Top"/>
         <Label Content="Number of TCP packets:" HorizontalAlignment="Left" Margin="635,65,0,0" VerticalAlignment="Top"/>
         <Label Content="Number of UDP packets:" HorizontalAlignment="Left" Margin="635,120,0,0" VerticalAlignment="Top"/>
-        <Label Content="Start check control sum 1" HorizontalAlignment="Left" Margin="191,369,0,0" VerticalAlignment="Top"/>
-        <Label Content="End check control sum 1" HorizontalAlignment="Left" Margin="346,369,0,0" VerticalAlignment="Top"/>
-        <Label Content="Control sum 1" HorizontalAlignment="Left" Margin="502,369,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.921,0.731"/>
-        <Label Content="Start check control sum 2" HorizontalAlignment="Left" Margin="191,424,0,0" VerticalAlignment="Top"/>
-        <Label Content="End check control sum 2" HorizontalAlignment="Left" Margin="346,424,0,0" VerticalAlignment="Top"/>
-        <Label Content="Control sum 2" HorizontalAlignment="Left" Margin="502,424,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.921,0.731"/>
-        <Label Content="Check control sum on packets to calculate Jitter" HorizontalAlignment="Left" Margin="296,337,0,0" VerticalAlignment="Top"/>
+        <Label Content="Start byte 1" HorizontalAlignment="Left" Margin="254,370,0,0" VerticalAlignment="Top" Width="82"/>
+        <Label Content="End byte 1" HorizontalAlignment="Left" Margin="364,370,0,0" VerticalAlignment="Top"/>
+        <Label Content="Control sequence 1" HorizontalAlignment="Left" Margin="482,370,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.921,0.731"/>
+        <Label Content="Start byte 2" HorizontalAlignment="Left" Margin="254,424,0,0" VerticalAlignment="Top" Width="82"/>
+        <Label Content="End byte 2" HorizontalAlignment="Left" Margin="364,427,0,0" VerticalAlignment="Top"/>
+        <Label Content="Control sequence 2" HorizontalAlignment="Left" Margin="482,424,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.921,0.731"/>
+        <Label Content="Check control byte sequence on packets to calculate Jitter (dash separated)" HorizontalAlignment="Left" Margin="210,339,0,0" VerticalAlignment="Top"/>
         <Label Content="Margin of error (in ms)" HorizontalAlignment="Left" Margin="482,483,0,0" VerticalAlignment="Top"/>
         <Label Content="Assumed interval" HorizontalAlignment="Left" Margin="266,508,0,0" VerticalAlignment="Top"/>
         <Label Content="Calculated jitter" HorizontalAlignment="Left" Margin="136,508,0,0" VerticalAlignment="Top"/>
+        <Label Content="Start byte, end byte, control sequence or margin of error not filled." Visibility="Hidden" Foreground="Red" HorizontalAlignment="Left" Margin="191,567,0,0" VerticalAlignment="Top" Width="379" x:Name="textBoxNotFilledLabel"/>
+        <Label Content="No packets fullfiling requirements." Visibility="Hidden" Foreground="OrangeRed" HorizontalAlignment="Left" Margin="191,593,0,0" VerticalAlignment="Top" Width="353" x:Name="noPacketsLabel"/>
 
 
         <ListBox HorizontalAlignment="Left" Height="24" Margin="645,36,0,0" VerticalAlignment="Top" Width="106" x:Name="otherBox"/>
@@ -46,17 +48,17 @@
         <ListBox HorizontalAlignment="Left" Height="24" Margin="645,91,0,0" VerticalAlignment="Top" Width="106" x:Name="tcpBox"/>
         <ListBox HorizontalAlignment="Left" Height="24" Margin="645,151,0,0" VerticalAlignment="Top" Width="106" x:Name="udpBox"/>
 
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="239,395,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="inputFromBox1"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="387,400,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45" x:Name="inputToBox1"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="527,400,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="controlSumBox1"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="239,455,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="inputFromBox2"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="387,455,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45" x:Name="inputToBox2"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="527,455,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="controlSumBox2"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="266,396,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="inputFromBox1"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="375,401,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45" x:Name="inputToBox1"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="470,400,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="135" x:Name="controlSumBox1"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="266,455,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="40" x:Name="inputFromBox2"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="375,455,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45" x:Name="inputToBox2"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="470,455,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="135" x:Name="controlSumBox2"/>
         <TextBox HorizontalAlignment="Left" Height="23" Margin="527,511,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="43" x:Name="epsilonBox"/>
         <TextBox HorizontalAlignment="Left" Height="23" Margin="123,539,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="jitterBox" RenderTransformOrigin="0,0.565"/>
         <TextBox HorizontalAlignment="Left" Height="23" Margin="257,539,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" x:Name="intervalBox"/>
 
-        <CheckBox Content="Check also sum 2" HorizontalAlignment="Left" Margin="41,430,0,0" VerticalAlignment="Top" x:Name="checkSecondControlSum"/>
+        <CheckBox Content="Check also sequence 2" HorizontalAlignment="Left" Margin="41,430,0,0" VerticalAlignment="Top" x:Name="checkSecondControlSum"/>
 
         <Border BorderThickness="2" BorderBrush="Black" Margin="617,339,10,10">
             <lvc:CartesianChart LegendLocation="Bottom"  HorizontalAlignment="Left" Height="300" Margin="8,8,0,0" VerticalAlignment="Top" Width="545" x:Name="cartChart" />

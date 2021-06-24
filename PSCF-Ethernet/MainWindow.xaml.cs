@@ -21,6 +21,7 @@ namespace PSCF_Ethernet
         //#####################################################
         List<DataGrid> dataGrid = new List<DataGrid>();
         List<Packet> packetsForJitter = new List<Packet>();
+        List<Packet> allCapturedPackets = new List<Packet>();
 
         Packet previousPacket = null;
 
@@ -87,7 +88,9 @@ namespace PSCF_Ethernet
             //#####################################################
 
             if (packetsForJitter.Count > 0) packetsForJitter.Clear();
-            if(fileName != "")
+            noPacketsLabel.Visibility = Visibility.Hidden;
+            textBoxNotFilledLabel.Visibility = Visibility.Hidden;
+            if (fileName != "")
             {
                 OfflinePacketDevice selectedDevice = new OfflinePacketDevice(fileName);
 
@@ -153,8 +156,19 @@ namespace PSCF_Ethernet
 
         private void Calculate_Jitter(object sender, RoutedEventArgs e)
         {
+            noPacketsLabel.Visibility = Visibility.Hidden;
+            textBoxNotFilledLabel.Visibility = Visibility.Hidden;
+
             jitterBox.Text = "";
             intervalBox.Text = "";
+            if (packetsForJitter.Count > 0)
+            {
+                packetsForJitter.Clear();   
+            }
+            foreach (Packet packet in allCapturedPackets)
+            {
+                checkPacketForJitter(packet);
+            }
 
             if (packetsForJitter.Count > 1 && epsilonBox.Text.Length > 0) //jesli sa wypelnione te pola
             {
@@ -185,6 +199,11 @@ namespace PSCF_Ethernet
                 }
                 jitterBox.Text = ((int) calculateJitterOnGivenInterval((int) mostFrequentInterval)).ToString();
                 intervalBox.Text = ((int) mostFrequentInterval).ToString();
+            }
+            else
+            {
+                if (packetsForJitter.Count == 0) noPacketsLabel.Visibility = Visibility.Visible;
+                else if (epsilonBox.Text.Length < 1) textBoxNotFilledLabel.Visibility = Visibility.Visible;
             }
         }
 
@@ -250,6 +269,10 @@ namespace PSCF_Ethernet
                     packetsForJitter.Add(packet);
                 }
             }
+            else
+            {
+                textBoxNotFilledLabel.Visibility = Visibility.Visible;
+            }
 
         }
 
@@ -259,18 +282,12 @@ namespace PSCF_Ethernet
         {
             int startBit = Int32.Parse(startBitBox.Text);
             int endBit = Int32.Parse(endBitBox.Text);
-            int controlSum = Int32.Parse(controlSumBox.Text);
-            int currentSum = 0;
-            for (int i = startBit; i <= endBit; i++)
-            {
-                currentSum += packet.Buffer[i];
-            }
-            if (currentSum.Equals(controlSum))
-            {
-               return true;
-            }
-            return false;
+            string givenCharacterString = controlSumBox.Text;
+            byte[] packetCharacterString = packet.Buffer.SubArray(startBit, endBit - startBit + 1);
+            string hexPacketCharacterString = BitConverter.ToString(packetCharacterString);
+            return hexPacketCharacterString.Equals(givenCharacterString, StringComparison.CurrentCultureIgnoreCase);
         }
+
 
         private void clearAll()
         {
@@ -301,18 +318,25 @@ namespace PSCF_Ethernet
 
         private void countPackets(Packet packet)
         {
-            if (packet.Ethernet.EtherType.Equals(PcapDotNet.Packets.Ethernet.EthernetType.IpV4))
+            try
             {
-                if (packet.Ethernet.IpV4.Protocol.ToString() == "Tcp")
+                if (packet.Ethernet.EtherType.Equals(PcapDotNet.Packets.Ethernet.EthernetType.IpV4))
                 {
-                    amountTCP++;
+                    if (packet.Ethernet.IpV4.Protocol.ToString() == "Tcp")
+                    {
+                        amountTCP++;
+                    }
+                    else if (packet.Ethernet.IpV4.Protocol.ToString() == "Udp")
+                    {
+                        amountUDP++;
+                    }
                 }
-                else if (packet.Ethernet.IpV4.Protocol.ToString() == "Udp")
+                else
                 {
-                    amountUDP++;
+                    amountOther++;
                 }
             }
-            else
+            catch (IndexOutOfRangeException e)
             {
                 amountOther++;
             }
@@ -332,7 +356,7 @@ namespace PSCF_Ethernet
             double delayInSeconds = calculateDelayInSeconds(previousPacket, packet);
             totalDelay += delayInSeconds;
             double bytesPerSecond = calculateBytesPerSecond(packet, delayInSeconds);
-            checkPacketForJitter(packet);
+            allCapturedPackets.Add(packet);
 
             index++;
 
@@ -420,5 +444,15 @@ namespace PSCF_Ethernet
         public ushort DestinationPort { get; set; }
         public double DelayInSeconds { get; set; }
         public int BytesPerSecond { get; set; }
+    }
+
+    public static class Extensions
+    {
+        public static T[] SubArray<T>(this T[] array, int offset, int length)
+        {
+            T[] result = new T[length];
+            Array.Copy(array, offset, result, 0, length);
+            return result;
+        }
     }
 }
