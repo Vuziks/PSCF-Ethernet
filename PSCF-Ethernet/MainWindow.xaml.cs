@@ -205,7 +205,15 @@ namespace PSCF_Ethernet
                     }
                 }
                 jitterBox.Text = ((int) calculateJitterOnGivenInterval((int) mostFrequentInterval)).ToString();
-                intervalBox.Text = ((int) mostFrequentInterval).ToString();
+                string notEnoughAccuracy = " < 0 ";
+                if (((int)mostFrequentInterval).Equals(0))
+                {
+                    intervalBox.Text = notEnoughAccuracy;
+                }
+                else
+                {
+                    intervalBox.Text = ((int)mostFrequentInterval).ToString();
+                }
             }
             else
             {
