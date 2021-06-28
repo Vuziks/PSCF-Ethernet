@@ -215,7 +215,7 @@ namespace PSCF_Ethernet
         //#####################################################
 
 
-        // MOST IMPORTANT FUNCTION
+        // MOST IMPORTANT - FUNCTION
         //#####################################################
         private void DispatcherHandler(Packet packet)
         {
@@ -266,10 +266,8 @@ namespace PSCF_Ethernet
         //#####################################################
 
 
-
-
-
-
+        // JITTER - FUNCTIONS
+        //#####################################################
         private static void IncrementExistingOrAddNewInterval(Dictionary<double, int> possibleIntervals, double marginOfError, double currentInterval)
         {
             List<double> intervals = new List<double>(possibleIntervals.Keys);
@@ -350,8 +348,59 @@ namespace PSCF_Ethernet
             string hexPacketCharacterString = BitConverter.ToString(packetCharacterString);
             return hexPacketCharacterString.Equals(givenCharacterString, StringComparison.CurrentCultureIgnoreCase);
         }
+        //#####################################################
 
 
+        // CALCULATE - FUNCTIONS
+        //#####################################################
+        private double calculateDelayInSeconds(Packet previousPacket, Packet currentPacket)
+        {
+            return (currentPacket.Timestamp - previousPacket.Timestamp).TotalSeconds;
+        }
+
+        private double calculateBytesPerSecond(Packet currentPacket, double delayInSeconds)
+        {
+            if (delayInSeconds > 0.00001)
+            {
+                return currentPacket.Length * 8 / delayInSeconds;
+            }
+            return 0;
+        }
+        //#####################################################
+
+
+        // CountPackets - FUNCTION
+        //#####################################################
+        private void countPackets(Packet packet)
+        {
+            try
+            {
+                if (packet.Ethernet.EtherType.Equals(PcapDotNet.Packets.Ethernet.EthernetType.IpV4))
+                {
+                    if (packet.Ethernet.IpV4.Protocol.ToString() == "Tcp")
+                    {
+                        amountTCP++;
+                    }
+                    else if (packet.Ethernet.IpV4.Protocol.ToString() == "Udp")
+                    {
+                        amountUDP++;
+                    }
+                }
+                else
+                {
+                    amountOther++;
+                }
+            }
+            catch (IndexOutOfRangeException e)
+            {
+                amountOther++;
+            }
+        }
+        //#####################################################
+
+
+        // CLEAR_ALL - FUNCTION
+        //#####################################################
         private void clearAll()
         {
             dataGrid.Clear();
@@ -380,52 +429,12 @@ namespace PSCF_Ethernet
 
             cartChart.Series.Clear();
         }
-
-        private void countPackets(Packet packet)
-        {
-            try
-            {
-                if (packet.Ethernet.EtherType.Equals(PcapDotNet.Packets.Ethernet.EthernetType.IpV4))
-                {
-                    if (packet.Ethernet.IpV4.Protocol.ToString() == "Tcp")
-                    {
-                        amountTCP++;
-                    }
-                    else if (packet.Ethernet.IpV4.Protocol.ToString() == "Udp")
-                    {
-                        amountUDP++;
-                    }
-                }
-                else
-                {
-                    amountOther++;
-                }
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                amountOther++;
-            }
-        }
-
-        
-                
-        private double calculateDelayInSeconds(Packet previousPacket, Packet currentPacket)
-        {
-            return (currentPacket.Timestamp - previousPacket.Timestamp).TotalSeconds;
-        }
-
-        private double calculateBytesPerSecond(Packet currentPacket, double delayInSeconds)
-        {
-            if (delayInSeconds > 0.00001)
-            {
-                return currentPacket.Length * 8 / delayInSeconds;
-            }
-            return 0;
-        }
-
-        
+        //#####################################################
     }
 
+
+    // DataGrid - TABLE
+    //#####################################################
     public class DataGrid
     {
         public int Id { get; set; }
@@ -437,7 +446,11 @@ namespace PSCF_Ethernet
         public double DelayInSeconds { get; set; }
         public int BytesPerSecond { get; set; }
     }
+    //#####################################################
 
+
+    // Extensions - CLASS
+    //#####################################################
     public static class Extensions
     {
         public static T[] SubArray<T>(this T[] array, int offset, int length)
@@ -447,4 +460,5 @@ namespace PSCF_Ethernet
             return result;
         }
     }
+    //#####################################################
 }
