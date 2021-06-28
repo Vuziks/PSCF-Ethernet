@@ -18,7 +18,7 @@
         -->
         <Label Content="Traffic Monitor" HorizontalAlignment="Left" Margin="215,10,0,0" VerticalAlignment="Top" FontSize="22" />
         
-        <DataGrid x:Name="trafficData" AlternatingRowBackground="Silver" CanUserAddRows="False" AutoGenerateColumns="False" Margin="15,54,696,327">
+        <DataGrid x:Name="trafficData" AlternatingRowBackground="Silver" CanUserAddRows="False" AutoGenerateColumns="False" Margin="15,54,696,106">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="No." Binding="{Binding Path=Id}" />
                 <DataGridTextColumn Header="Source_IP" Binding="{Binding Path=SourceIP}" />
@@ -31,7 +31,7 @@
             </DataGrid.Columns>
         </DataGrid>
         
-        <Button Content="Receive Traffic" HorizontalAlignment="Left" Margin="15,405,0,0" VerticalAlignment="Top" Width="156" Click="ReceiveTraffic_Click" Height="48" FontSize="22"/>
+        <Button Content="Receive Traffic" HorizontalAlignment="Left" Margin="185,631,0,0" VerticalAlignment="Top" Width="156" Click="ReceiveTraffic_Click" Height="48" FontSize="22"/>
         <!--
             ##############################################################
         -->
@@ -105,12 +105,14 @@
             - Amount Of UDP Packets Label & ListBox
             ##############################################################
         -->
+        <!--
         <Label Content="Number of Other packets:" HorizontalAlignment="Left" Margin="426,413,0,0" VerticalAlignment="Top"/>
         <ListBox HorizontalAlignment="Left" Height="24" Margin="438,444,0,0" VerticalAlignment="Top" Width="106" x:Name="otherBox"/>
         <Label Content="Number of TCP packets:" HorizontalAlignment="Left" Margin="426,475,0,0" VerticalAlignment="Top"/>
         <ListBox HorizontalAlignment="Left" Height="24" Margin="438,506,0,0" VerticalAlignment="Top" Width="106" x:Name="tcpBox"/>
         <Label Content="Number of UDP packets:" HorizontalAlignment="Left" Margin="426,535,0,0" VerticalAlignment="Top"/>
         <ListBox HorizontalAlignment="Left" Height="24" Margin="438,566,0,0" VerticalAlignment="Top" Width="106" x:Name="udpBox"/>
+        -->
         <!--
             ##############################################################
         -->
@@ -120,7 +122,7 @@
             - Path Box
             ##############################################################
         -->
-        <Button Content="Open file" HorizontalAlignment="Left" Margin="15,631,0,0" VerticalAlignment="Top" Width="156" Click="OpenFile_Click" Height="48" FontSize="22"/>
+        <Button Content="Open File" HorizontalAlignment="Left" Margin="15,631,0,0" VerticalAlignment="Top" Width="156" Click="OpenFile_Click" Height="48" FontSize="22"/>
         <ListBox HorizontalAlignment="Left" Height="23" Margin="15,684,0,0" VerticalAlignment="Top" Width="326" x:Name="pathBox"/>
         <!--
             ##############################################################

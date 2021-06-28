@@ -111,9 +111,9 @@ namespace PSCF_Ethernet
                 trafficData.ItemsSource = dataGrid;
 
                 // Fill amount Box'y
-                otherBox.Items.Add(amountOther);
-                tcpBox.Items.Add(amountTCP);
-                udpBox.Items.Add(amountUDP);
+                //otherBox.Items.Add(amountOther);
+                //tcpBox.Items.Add(amountTCP);
+                //udpBox.Items.Add(amountUDP);
 
                 // Create value to the series
                 int[] ysTCP = { amountTCP };
@@ -152,6 +152,7 @@ namespace PSCF_Ethernet
             }
             else
             {
+                pathBox.Items.Clear();
                 pathBox.Items.Add("First choose file to analyze!!!");
             }
         }
@@ -422,10 +423,10 @@ namespace PSCF_Ethernet
             packetsTotal = 0;
 
 
-            otherBox.Items.Clear();
             pathBox.Items.Clear();
-            tcpBox.Items.Clear();
-            udpBox.Items.Clear();
+            //otherBox.Items.Clear();
+            //tcpBox.Items.Clear();
+            //udpBox.Items.Clear();
 
             cartChart.Series.Clear();
         }
