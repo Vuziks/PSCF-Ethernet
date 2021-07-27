@@ -21,9 +21,9 @@
         <DataGrid x:Name="trafficData" AlternatingRowBackground="Silver" CanUserAddRows="False" AutoGenerateColumns="False" Margin="15,54,696,106">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="No." Binding="{Binding Path=Id}" />
-                <DataGridTextColumn Header="Source_IP" Binding="{Binding Path=SourceIP}" />
+                <DataGridTextColumn Header="Source" Binding="{Binding Path=Source}" />
                 <DataGridTextColumn Header="Source_Port" Binding="{Binding Path=SourcePort}" />
-                <DataGridTextColumn Header="Destination_IP" Binding="{Binding Path=DestinationIP}" />
+                <DataGridTextColumn Header="Destination" Binding="{Binding Path=Destination}" />
                 <DataGridTextColumn Header="Destination_Port" Binding="{Binding Path=DestinationPort}" />
                 <DataGridTextColumn Header="Protocol" Binding="{Binding Path=Protocol}" />
                 <DataGridTextColumn Header="Delay [s]" Binding="{Binding Path=DelayInSeconds}" />

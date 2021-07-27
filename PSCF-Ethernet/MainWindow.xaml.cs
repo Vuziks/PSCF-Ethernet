@@ -89,7 +89,7 @@ namespace PSCF_Ethernet
         //#####################################################
         private void ReceiveTraffic_Click(object sender, RoutedEventArgs e)
         {
-            if (packetsForJitter.Count > 0) packetsForJitter.Clear();
+            clearCapturedPackets();
             noPacketsLabel.Visibility = Visibility.Hidden;
             textBoxNotFilledLabel.Visibility = Visibility.Hidden;
             if (fileName != "")
@@ -109,11 +109,6 @@ namespace PSCF_Ethernet
 
                 // Fill DataGrid
                 trafficData.ItemsSource = dataGrid;
-
-                // Fill amount Box'y
-                //otherBox.Items.Add(amountOther);
-                //tcpBox.Items.Add(amountTCP);
-                //udpBox.Items.Add(amountUDP);
 
                 // Create value to the series
                 int[] ysTCP = { amountTCP };
@@ -157,12 +152,12 @@ namespace PSCF_Ethernet
             }
         }
         //#####################################################
-
-
+        
         // CalculateJitter_Click - BUTTON
         //#####################################################
         private void CalculateJitter_Click(object sender, RoutedEventArgs e)
         {
+            
             noPacketsLabel.Visibility = Visibility.Hidden;
             textBoxNotFilledLabel.Visibility = Visibility.Hidden;
 
@@ -176,6 +171,8 @@ namespace PSCF_Ethernet
             {
                 checkPacketForJitter(packet);
             }
+
+            filterDisplayedPackets();
 
             if (packetsForJitter.Count > 1 && epsilonBox.Text.Length > 0) //jesli sa wypelnione te pola
             {
@@ -204,7 +201,7 @@ namespace PSCF_Ethernet
                         mostFrequentInterval = interval.Key;
                     }
                 }
-                jitterBox.Text = ((int) calculateJitterOnGivenInterval((int) mostFrequentInterval)).ToString();
+                jitterBox.Text = (calculateJitterOnGivenInterval((int) mostFrequentInterval)).ToString().Substring(0,4);
                 string notEnoughAccuracy = " < 0 ";
                 if (((int)mostFrequentInterval).Equals(0))
                 {
@@ -232,46 +229,33 @@ namespace PSCF_Ethernet
                 previousPacket = packet;
 
             countPackets(packet);
-
-            IpV4Datagram ip = packet.Ethernet.IpV4;
-            UdpDatagram udp = ip.Udp;
-
-            double delayInSeconds = calculateDelayInSeconds(previousPacket, packet);
-            totalDelay += delayInSeconds;
-            double bytesPerSecond = calculateBytesPerSecond(packet, delayInSeconds);
-            allCapturedPackets.Add(packet);
-
-            index++;
-
-            try
-            {
-                dataGrid.Add(new DataGrid()
-                {
-                    Id = index,
-                    SourceIP = ip.Source,
-                    SourcePort = udp != null ? udp.SourcePort : (ushort)0,
-                    DestinationIP = ip.Destination,
-                    DestinationPort = udp != null ? udp.DestinationPort : (ushort)0,
-                    Protocol = packet.Ethernet.IpV4.Protocol.ToString(),
-                    DelayInSeconds = delayInSeconds,
-                    BytesPerSecond = (int)bytesPerSecond
-                });
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                dataGrid.Add(new DataGrid()
-                {
-                    Id = index,
-                    SourceIP = new IpV4Address("0.0.0.0"),
-                    SourcePort = (ushort)0,
-                    DestinationIP = new IpV4Address("0.0.0.0"),
-                    DestinationPort = (ushort)0,
-                    Protocol = "ERROR",
-                    DelayInSeconds = delayInSeconds,
-                    BytesPerSecond = (int)bytesPerSecond
-                });
-            }
+            fillTrafficMonitor(packet);            
         }
+
+        private static string getSource(Packet packet, IpV4Datagram ip)
+        {
+            if (ip.Source.ToValue() == 0 || ip.Destination.ToValue() == 0)
+            {
+                byte[] packetCharacterString = packet.Buffer.SubArray(6, 6);
+                string hexPacketCharacterString = BitConverter.ToString(packetCharacterString);
+                return hexPacketCharacterString.Replace("-", ":");
+            }
+            else return ip.Source.ToString();
+        }
+
+        private static string getDestination(Packet packet, IpV4Datagram ip)
+        {
+            if (ip.Source.ToValue() == 0 || ip.Destination.ToValue() == 0)
+            {
+                byte[] packetCharacterString = packet.Buffer.SubArray(0, 6);
+                string hexPacketCharacterString = BitConverter.ToString(packetCharacterString);
+                return hexPacketCharacterString.Replace("-", ":");
+            }
+            else return ip.Destination.ToString();
+        }
+
+
+
         //#####################################################
 
 
@@ -357,6 +341,58 @@ namespace PSCF_Ethernet
             string hexPacketCharacterString = BitConverter.ToString(packetCharacterString);
             return hexPacketCharacterString.Equals(givenCharacterString, StringComparison.CurrentCultureIgnoreCase);
         }
+
+        private void filterDisplayedPackets()
+        {
+            clearCapturedPackets();
+            foreach (Packet packet in packetsForJitter)
+            {
+                fillTrafficMonitor(packet);
+            }
+
+        }
+
+        private void fillTrafficMonitor(Packet packet)
+        {
+            IpV4Datagram ip = packet.Ethernet.IpV4;
+            UdpDatagram udp = ip.Udp;
+
+            double delayInSeconds = calculateDelayInSeconds(previousPacket, packet);
+            totalDelay += delayInSeconds;
+            double bytesPerSecond = calculateBytesPerSecond(packet, delayInSeconds);
+            allCapturedPackets.Add(packet);
+            index++;
+            try
+            {
+                dataGrid.Add(new DataGrid()
+                {
+                    Id = index,
+                    Source = getSource(packet, ip),
+                    SourcePort = udp != null ? udp.SourcePort : (ushort)0,
+                    Destination = getDestination(packet, ip),
+                    DestinationPort = udp != null ? udp.DestinationPort : (ushort)0,
+                    Protocol = packet.Ethernet.IpV4.Protocol.ToString(),
+                    DelayInSeconds = delayInSeconds,
+                    BytesPerSecond = (int)bytesPerSecond
+                });
+            }
+            catch (IndexOutOfRangeException e)
+            {
+                dataGrid.Add(new DataGrid()
+                {
+                    Id = index,
+                    Source = "0.0.0.0",
+                    SourcePort = (ushort)0,
+                    Destination = "0.0.0.0",
+                    DestinationPort = (ushort)0,
+                    Protocol = "ERROR",
+                    DelayInSeconds = delayInSeconds,
+                    BytesPerSecond = (int)bytesPerSecond
+                });
+            }
+        }
+
+
         //#####################################################
 
 
@@ -432,11 +468,20 @@ namespace PSCF_Ethernet
 
 
             pathBox.Items.Clear();
-            //otherBox.Items.Clear();
-            //tcpBox.Items.Clear();
-            //udpBox.Items.Clear();
 
             cartChart.Series.Clear();
+        }
+        //#####################################################
+
+        // CLEAR_CAPTURED_PACKETS - FUNCTION
+        //#####################################################
+        private void clearCapturedPackets()
+        {
+            dataGrid.Clear();
+            allCapturedPackets.Clear();
+            index = 0;
+            totalDelay = 0;
+            packetsTotal = 0;
         }
         //#####################################################
     }
@@ -447,9 +492,9 @@ namespace PSCF_Ethernet
     public class DataGrid
     {
         public int Id { get; set; }
-        public IpV4Address SourceIP { get; set; }
+        public string Source { get; set; }
         public ushort SourcePort { get; set; }
-        public IpV4Address DestinationIP { get; set; }
+        public string Destination { get; set; }
         public ushort DestinationPort { get; set; }
         public string Protocol { get; set; }
         public double DelayInSeconds { get; set; }
