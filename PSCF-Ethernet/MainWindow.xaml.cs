@@ -89,6 +89,7 @@ namespace PSCF_Ethernet
         //#####################################################
         private void ReceiveTraffic_Click(object sender, RoutedEventArgs e)
         {
+            //clearAll();
             clearCapturedPackets();
             noPacketsLabel.Visibility = Visibility.Hidden;
             textBoxNotFilledLabel.Visibility = Visibility.Hidden;
@@ -108,7 +109,9 @@ namespace PSCF_Ethernet
                 }
 
                 // Fill DataGrid
+                trafficData.ItemsSource = null;
                 trafficData.ItemsSource = dataGrid;
+                
 
                 // Create value to the series
                 int[] ysTCP = { amountTCP };
@@ -173,6 +176,8 @@ namespace PSCF_Ethernet
             }
 
             filterDisplayedPackets();
+            trafficData.ItemsSource = null;
+            trafficData.ItemsSource = dataGrid;
 
             if (packetsForJitter.Count > 1 && epsilonBox.Text.Length > 0) //jesli sa wypelnione te pola
             {
@@ -229,7 +234,7 @@ namespace PSCF_Ethernet
                 previousPacket = packet;
 
             countPackets(packet);
-            fillTrafficMonitor(packet);            
+            fillTrafficMonitor(packet);          
         }
 
         private static string getSource(Packet packet, IpV4Datagram ip)
@@ -477,6 +482,13 @@ namespace PSCF_Ethernet
         //#####################################################
         private void clearCapturedPackets()
         {
+            amountOther = 0;
+            amountTCP = 0;
+            amountUDP = 0;
+            index = 0;
+
+            packetsTotal = 0;
+
             dataGrid.Clear();
             allCapturedPackets.Clear();
             index = 0;
